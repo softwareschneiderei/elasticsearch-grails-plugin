@@ -87,6 +87,10 @@ class JSONDomainFactory {
                             marshaller = new PropertyEditorMarshaller(propertyEditorClass: converter)
                         }
                     }
+                    if (converter instanceof String) {
+                        PropertyEditor propertyEditor = grailsApplication.mainContext.getBean(converter as String) as PropertyEditor
+                        marshaller = new PropertyEditorBeanMarshaller(propertyEditor: propertyEditor)
+                    }
                 } else if (propertyMapping?.isDynamic()) {
                     marshaller = new DynamicValueMarshaller()
                 } else if (propertyMapping?.reference) {
@@ -143,7 +147,7 @@ class JSONDomainFactory {
         DomainEntity domainClass = getInstanceDomainClass(instance)
         XContentBuilder json = jsonBuilder().startObject()
         // TODO : add maxDepth in custom mapping (only for "searchable components")
-        SearchableClassMapping scm = elasticSearchContextHolder.getMappingContext(domainClass)
+        SearchableClassMapping scm = elasticSearchContextHolder.getMappingContext((DomainEntity) domainClass)
 
         DefaultMarshallingContext marshallingContext = new DefaultMarshallingContext(maxDepth: 5, parentFactory: this)
         marshallingContext.push(instance)
