@@ -24,6 +24,7 @@ import grails.plugins.elasticsearch.mapping.DomainReflectionService
 import grails.plugins.elasticsearch.mapping.SearchableClassMapping
 import grails.plugins.elasticsearch.unwrap.DomainClassUnWrapperChain
 import org.elasticsearch.common.xcontent.XContentBuilder
+import org.grails.orm.hibernate.cfg.GrailsHibernateUtil
 
 import java.beans.PropertyEditor
 
@@ -168,6 +169,9 @@ class JSONDomainFactory {
     }
 
     DomainEntity getInstanceDomainClass(Object instance) {
+        if ((grailsApplication.config.elasticSearch as ConfigObject).datastoreImpl =~ /hibernate/) {
+            instance = GrailsHibernateUtil.unwrapIfProxy(instance)
+        }
         domainReflectionService.getDomainEntity(instance.class)
     }
 
