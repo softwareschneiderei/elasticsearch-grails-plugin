@@ -25,7 +25,7 @@ plugins {
     id "de.undercouch.download" version "3.2.0"
 }
 
-version "2.4.1"
+version "2.4.1-dss1"
 group "org.grails.plugins"
 
 apply plugin: 'eclipse'
