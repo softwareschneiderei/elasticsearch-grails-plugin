@@ -30,6 +30,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.util.Assert
 
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -54,7 +55,7 @@ class IndexRequestQueue {
     /**
      * A map containing the pending index requests.
      */
-    private Map<IndexEntityKey, Object> indexRequests = [:]
+    private Map<IndexEntityKey, Object> indexRequests = new ConcurrentHashMap<>()
 
     /**
      * A set containing the pending delete requests.
