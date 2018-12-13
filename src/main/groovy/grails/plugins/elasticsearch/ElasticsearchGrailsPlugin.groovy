@@ -91,6 +91,7 @@ class ElasticsearchGrailsPlugin extends Plugin {
                 elasticSearchContextHolder = ref('elasticSearchContextHolder')
                 elasticSearchClient = ref('elasticSearchClient')
                 jsonDomainFactory = ref('jsonDomainFactory')
+                grailsApplication = grailsApplication
             }
             mappingMigrationManager(MappingMigrationManager) {
                 elasticSearchContextHolder = ref('elasticSearchContextHolder')

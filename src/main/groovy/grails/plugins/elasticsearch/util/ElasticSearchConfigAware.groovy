@@ -22,4 +22,8 @@ trait ElasticSearchConfigAware {
     ConfigObject getMigrationConfig() {
         (grailsApplication?.config?.elasticSearch as ConfigObject)?.migration as ConfigObject
     }
+
+    boolean hibernateDataStoreConfigured() {
+        (grailsApplication.config.elasticSearch as ConfigObject).datastoreImpl =~ /hibernate/
+    }
 }

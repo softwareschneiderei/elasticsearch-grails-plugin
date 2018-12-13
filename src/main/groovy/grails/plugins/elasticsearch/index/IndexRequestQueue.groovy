@@ -15,10 +15,12 @@
  */
 package grails.plugins.elasticsearch.index
 
+import grails.core.GrailsApplication
 import grails.plugins.elasticsearch.ElasticSearchContextHolder
 import grails.plugins.elasticsearch.conversion.JSONDomainFactory
 import grails.plugins.elasticsearch.exception.IndexException
 import grails.plugins.elasticsearch.mapping.SearchableClassMapping
+import grails.plugins.elasticsearch.util.ElasticSearchConfigAware
 import org.codehaus.groovy.runtime.InvokerHelper
 import org.elasticsearch.action.ActionListener
 import org.elasticsearch.action.bulk.BulkItemResponse
@@ -26,6 +28,7 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder
 import org.elasticsearch.action.bulk.BulkResponse
 import org.elasticsearch.client.Client
 import org.elasticsearch.common.xcontent.XContentBuilder
+import org.grails.orm.hibernate.cfg.GrailsHibernateUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.util.Assert
@@ -44,13 +47,14 @@ import java.util.concurrent.atomic.AtomicInteger
  * NOTE: if cluster state is RED, everything will probably fail and keep retrying forever.
  * NOTE: This is shared class, so need to be thread-safe.
  */
-class IndexRequestQueue {
+class IndexRequestQueue implements ElasticSearchConfigAware {
 
     private static final Logger LOG = LoggerFactory.getLogger(this)
 
     private JSONDomainFactory jsonDomainFactory
     private ElasticSearchContextHolder elasticSearchContextHolder
     private Client elasticSearchClient
+    GrailsApplication grailsApplication
 
     /**
      * A map containing the pending index requests.
@@ -95,6 +99,9 @@ class IndexRequestQueue {
     }
 
     IndexEntityKey indexEntityKeyFromInstance(instance) {
+        if (hibernateDataStoreConfigured()) {
+            instance = GrailsHibernateUtil.unwrapIfProxy(instance)
+        }
         def clazz = instance.getClass()
         SearchableClassMapping scm = elasticSearchContextHolder.getMappingContextByType(clazz)
         Assert.notNull(scm, "Class $clazz is not a searchable domain class.")
