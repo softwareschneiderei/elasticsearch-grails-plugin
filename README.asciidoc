@@ -1,6 +1,9 @@
 == Elasticsearch Grails plugin image:https://travis-ci.org/puneetbehl/elasticsearch-grails-plugin.svg?branch=master["Build Status", link="https://travis-ci.org/puneetbehl/elasticsearch-grails-plugin"]
 
-An Elasticsearch plugin for Grails; This project is a fork based on the great work done by the guys at https://github.com/mstein/elasticsearch-grails-plugin.
+An Elasticsearch plugin for Grails; This project is a fork based on the great work done by the guys at:
+
+* https://github.com/mstein/elasticsearch-grails-plugin
+* https://github.com/noamt/elasticsearch-grails-plugin
 
 === Why would you want to fork the original Elasticsearch plugin?
 
@@ -33,6 +36,14 @@ dependencies {
 |===
 |Plugin Version | Grails Version | Elasticsearch Version
 
+|2.5.0.BUILD-SNAPSHOT
+|3.3.x
+|5.5.3
+
+|2.4.1
+|3.3.x
+|5.4.3
+
 |2.4.0
 |3.1.y
 |5.4.1
@@ -40,7 +51,6 @@ dependencies {
 |1.4.1
 |3.1.y
 |5.4.1
-
 
 |1.2.1
 |3.2.y

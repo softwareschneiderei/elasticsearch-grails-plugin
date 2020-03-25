@@ -36,6 +36,7 @@ import java.nio.file.Paths
 class ClientNodeFactoryBean implements FactoryBean {
 
     static final SUPPORTED_MODES = ['local', 'transport', 'dataNode']
+    static final int DEFAULT_PORT = 9300
 
     private static final Logger LOG = LoggerFactory.getLogger(this)
 
@@ -52,7 +53,7 @@ class ClientNodeFactoryBean implements FactoryBean {
         Settings.Builder settings = Settings.builder()
         def configFile = elasticSearchContextHolder.config.bootstrap.config.file
         if (configFile) {
-            LOG.info "Looking for bootstrap configuration file at: $configFile"
+            LOG.debug("Looking for bootstrap configuration file at: $configFile")
             Resource resource = new PathMatchingResourcePatternResolver().getResource(configFile)
             settings = settings.loadFromStream(configFile, resource.inputStream)
         }
@@ -67,7 +68,7 @@ class ClientNodeFactoryBean implements FactoryBean {
         def dataPath = elasticSearchContextHolder.config.path.data
         if (dataPath) {
             settings.put('path.data', dataPath as String)
-            LOG.info "Using ElasticSearch data path: ${dataPath}"
+            LOG.debug("Using ElasticSearch data path: ${dataPath}")
         }
 
         // Configure the client based on the client mode
@@ -82,10 +83,13 @@ class ClientNodeFactoryBean implements FactoryBean {
                 }
                 // Use the "sniff" feature of transport client ?
                 if (elasticSearchContextHolder.config.client.transport.sniff) {
+                    LOG.debug("Setting client.transport.sniff to false")
                     transportSettingsBuilder.put("client.transport.sniff", false)
                 }
-                if (elasticSearchContextHolder.config.cluster.name) {
-                    transportSettingsBuilder.put('cluster.name', elasticSearchContextHolder.config.cluster.name.toString())
+                String clusterName = elasticSearchContextHolder.config.cluster.name
+                if (clusterName) {
+                    LOG.debug("Setting cluster.name to: $clusterName")
+                    transportSettingsBuilder.put('cluster.name', clusterName)
                 }
                 def transportSettings = transportSettingsBuilder.build()
                 transportClient = new PreBuiltTransportClient(transportSettings, Collections.emptyList());
@@ -96,21 +100,47 @@ class ClientNodeFactoryBean implements FactoryBean {
                 try {
                     def shield = Class.forName("org.elasticsearch.shield.ShieldPlugin")
                     transportClient = new PreBuiltTransportClient(transportSettings, Collections.singletonList(shield));
-                    LOG.info("Shield Enabled")
+                    LOG.debug("Shield Enabled")
                 } catch (ClassNotFoundException e) {
                     transportClient = new PreBuiltTransportClient(transportSettings, Collections.emptyList());
                 }
 
                 // Configure transport addresses
-                if (!elasticSearchContextHolder.config.client.hosts) {
-                    transportClient.addTransportAddress(new InetSocketTransportAddress(new InetSocketAddress('localhost', 9300)))
-                } else {
-                    elasticSearchContextHolder.config.client.hosts.each {
+                def hosts = elasticSearchContextHolder.config.client.hosts
+                String connectionString = elasticSearchContextHolder.config.client.connectionString
+                if (!hosts && !connectionString) {
+                    LOG.debug("None of the configurations 'elasticSearch.client.connectionString' or 'elasticSearch.client.hosts' are defined, so connecting to default: 'localhost:9300'")
+                    transportClient.addTransportAddress(new InetSocketTransportAddress(new InetSocketAddress('localhost', DEFAULT_PORT)))
+                } else if (connectionString) {
+                    LOG.debug("Config Property elasticSearch.client.connectionString is configured to: $connectionString")
+                    new ConnectionString(connectionString).connections.each { Map connection->
                         try {
-                            for (InetAddress address : InetAddress.getAllByName(it.host)) {
+                            for (InetAddress address : InetAddress.getAllByName((String) connection.host)) {
                                 if ((ip6Enabled && address instanceof Inet6Address) || (ip4Enabled && address instanceof Inet4Address)) {
-                                    LOG.info("Adding host: ${address}:${it.port}")
-                                    transportClient.addTransportAddress(new InetSocketTransportAddress(address, it.port));
+                                    LOG.debug("Adding host: ${address}:${connection.port}")
+                                    transportClient.addTransportAddress(new InetSocketTransportAddress(address, (int) connection.port))
+                                }
+                            }
+                        } catch (UnknownHostException e) {
+                            LOG.error("Unable to get the host", e);
+                        }
+                    }
+                } else if (hosts) {
+                    LOG.debug("Config Property elasticSearch.client.hosts is configured to: $hosts")
+                    hosts.each {
+                        String host
+                        int port = DEFAULT_PORT
+                        if (it instanceof Map) {
+                            host = it.host
+                            port = it.port
+                        } else {
+                            host = it
+                        }
+                        try {
+                            for (InetAddress address : InetAddress.getAllByName(host)) {
+                                if ((ip6Enabled && address instanceof Inet6Address) || (ip4Enabled && address instanceof Inet4Address)) {
+                                    LOG.debug("Adding host: ${address}:${it.port}")
+                                    transportClient.addTransportAddress(new InetSocketTransportAddress(address, port));
                                 }
                             }
                         } catch (UnknownHostException e) {
@@ -155,7 +185,7 @@ class ClientNodeFactoryBean implements FactoryBean {
                 }
 
                 def tmpDirectory = tmpDirectory()
-                LOG.info "Setting embedded ElasticSearch tmp dir to ${tmpDirectory}"
+                LOG.debug("Setting embedded ElasticSearch tmp dir to ${tmpDirectory}")
                 settings.put("path.home", tmpDirectory)
 
                 //settings.put("node.local", true)
@@ -196,6 +226,7 @@ class ClientNodeFactoryBean implements FactoryBean {
         }
 
         if(elasticSearchContextHolder.config.plugin.mapperAttachment.enabled) {
+            LOG.debug("MapperAttachmentPlugin enabled")
             node = new PluginEnabledNode(settings, org.elasticsearch.mapper.attachments.MapperAttachmentsPlugin)
         } else {
             node = new Node(settings.build())
@@ -228,7 +259,7 @@ class ClientNodeFactoryBean implements FactoryBean {
 
     def shutdown() {
         if (elasticSearchContextHolder.config.client.mode == 'local' || elasticSearchContextHolder.config.client.mode == 'dataNode' && node) {
-            LOG.info "Stopping embedded ElasticSearch."
+            LOG.debug "Stopping embedded ElasticSearch."
             node.close()        // close() seems to be more appropriate than stop()
         }
     }

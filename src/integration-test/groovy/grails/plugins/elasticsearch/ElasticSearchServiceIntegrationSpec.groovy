@@ -1,5 +1,6 @@
 package grails.plugins.elasticsearch
 
+import org.elasticsearch.join.query.JoinQueryBuilders
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -346,7 +347,7 @@ class ElasticSearchServiceIntegrationSpec extends Specification implements Elast
 
         when:
         def result = elasticSearchService.search(
-                QueryBuilders.hasParentQuery('store', QueryBuilders.matchQuery('owner', 'Horst'), false),
+                JoinQueryBuilders.hasParentQuery('store', QueryBuilders.matchQuery('owner', 'Horst'), false),
                 QueryBuilders.matchAllQuery(),
                 [indices: Department, types: Department])
 
