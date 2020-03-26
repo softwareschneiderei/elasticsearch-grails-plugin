@@ -5,7 +5,7 @@ import grails.testing.mixin.integration.Integration
 import grails.plugins.elasticsearch.ElasticSearchAdminService
 import grails.plugins.elasticsearch.ElasticSearchService
 import grails.plugins.elasticsearch.mapping.SearchableClassMappingConfigurator
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 import test.transients.Anagram

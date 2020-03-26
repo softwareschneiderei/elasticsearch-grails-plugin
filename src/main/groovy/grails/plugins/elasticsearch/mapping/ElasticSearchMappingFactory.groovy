@@ -135,7 +135,7 @@ class ElasticSearchMappingFactory {
                 untouched.put('type', propOptions.get('type') == 'text' ? 'keyword' : propOptions.get('type'))
 
                 Map fields = [untouched: untouched]
-                fields.put("${scpm.getPropertyName()}" as String, field)
+                fields.put("${scpm.getPropertyName()}" as String, field as LinkedHashMap<Object, Object>)
 
                 propOptions = [:]
                 propOptions.type = propType

@@ -61,11 +61,12 @@ class JSONDomainFactory implements ElasticSearchConfigAware {
         }
 
         DefaultMarshaller marshaller = null
-        Class<?> objectClass = object.getClass()
+        Object unwrappedObject = domainClassUnWrapperChain.unwrap(object)
+        Class<?> objectClass = unwrappedObject.getClass()
 
         // Resolve collections.
         // Check for direct marshaller matching
-        if (object instanceof Collection) {
+        if (unwrappedObject instanceof Collection) {
             marshaller = new CollectionMarshaller()
         }
 
@@ -135,7 +136,7 @@ class JSONDomainFactory implements ElasticSearchConfigAware {
         marshaller.grailsApplication = grailsApplication
         marshaller.domainClassUnWrapperChain = domainClassUnWrapperChain
         marshaller.maxDepth = maxDepth
-        marshaller.marshall(object)
+        marshaller.marshall(unwrappedObject)
     }
 
     /**

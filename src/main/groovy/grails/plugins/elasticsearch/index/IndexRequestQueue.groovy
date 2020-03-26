@@ -20,7 +20,7 @@ import grails.plugins.elasticsearch.ElasticSearchContextHolder
 import grails.plugins.elasticsearch.conversion.JSONDomainFactory
 import grails.plugins.elasticsearch.exception.IndexException
 import grails.plugins.elasticsearch.mapping.SearchableClassMapping
-import grails.plugins.elasticsearch.util.ElasticSearchConfigAware
+import grails.plugins.elasticsearch.unwrap.DomainClassUnWrapperChain
 import org.codehaus.groovy.runtime.InvokerHelper
 import org.elasticsearch.action.ActionListener
 import org.elasticsearch.action.bulk.BulkItemResponse
@@ -47,14 +47,14 @@ import java.util.concurrent.atomic.AtomicInteger
  * NOTE: if cluster state is RED, everything will probably fail and keep retrying forever.
  * NOTE: This is shared class, so need to be thread-safe.
  */
-class IndexRequestQueue implements ElasticSearchConfigAware {
+class IndexRequestQueue {
 
     private static final Logger LOG = LoggerFactory.getLogger(this)
 
-    private JSONDomainFactory jsonDomainFactory
-    private ElasticSearchContextHolder elasticSearchContextHolder
-    private Client elasticSearchClient
-    GrailsApplication grailsApplication
+    JSONDomainFactory jsonDomainFactory
+    ElasticSearchContextHolder elasticSearchContextHolder
+    Client elasticSearchClient
+    DomainClassUnWrapperChain domainClassUnWrapperChain
 
     /**
      * A map containing the pending index requests.
@@ -68,40 +68,32 @@ class IndexRequestQueue implements ElasticSearchConfigAware {
 
     private ConcurrentLinkedDeque<OperationBatch> operationBatch = new ConcurrentLinkedDeque<OperationBatch>()
 
-    void setJsonDomainFactory(JSONDomainFactory jsonDomainFactory) {
-        this.jsonDomainFactory = jsonDomainFactory
-    }
-
-    void setElasticSearchContextHolder(ElasticSearchContextHolder elasticSearchContextHolder) {
-        this.elasticSearchContextHolder = elasticSearchContextHolder
-    }
-
-    void setElasticSearchClient(Client elasticSearchClient) {
-        this.elasticSearchClient = elasticSearchClient
-    }
-
     void addIndexRequest(instance) {
         addIndexRequest(instance, null)
     }
 
     void addIndexRequest(instance, Serializable id) {
+        def unwrappedInstance = domainClassUnWrapperChain.unwrap(instance)
+
+        IndexEntityKey key = id == null ? indexEntityKeyFromInstance(unwrappedInstance)
+                                        : new IndexEntityKey(id.toString(), unwrappedInstance.getClass())
+
         synchronized (this) {
-            IndexEntityKey key = id == null ? indexEntityKeyFromInstance(instance) :
-                    new IndexEntityKey(id.toString(), instance.getClass())
-            indexRequests.put(key, instance)
+            indexRequests.put(key, unwrappedInstance)
         }
     }
 
     void addDeleteRequest(instance) {
+        def unwrappedInstance = domainClassUnWrapperChain.unwrap(instance)
+
+        IndexEntityKey key = indexEntityKeyFromInstance(unwrappedInstance)
+
         synchronized (this) {
-            deleteRequests.add(indexEntityKeyFromInstance(instance))
+            deleteRequests.add(key)
         }
     }
 
     IndexEntityKey indexEntityKeyFromInstance(instance) {
-        if (hibernateDataStoreConfigured()) {
-            instance = GrailsHibernateUtil.unwrapIfProxy(instance)
-        }
         def clazz = instance.getClass()
         SearchableClassMapping scm = elasticSearchContextHolder.getMappingContextByType(clazz)
         Assert.notNull(scm, "Class $clazz is not a searchable domain class.")

@@ -7,7 +7,7 @@ import grails.plugins.elasticsearch.ElasticSearchContextHolder
 import grails.plugins.elasticsearch.ElasticSearchService
 import grails.plugins.elasticsearch.exception.MappingException
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 import test.mapping.migration.Catalog

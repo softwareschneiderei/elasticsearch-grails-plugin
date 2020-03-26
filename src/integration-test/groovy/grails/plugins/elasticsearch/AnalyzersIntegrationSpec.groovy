@@ -3,7 +3,7 @@ package grails.plugins.elasticsearch
 import spock.lang.Specification
 
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 
 import org.elasticsearch.index.query.QueryBuilders
 import test.all.Post

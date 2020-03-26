@@ -79,6 +79,7 @@ class ElasticsearchGrailsPlugin extends Plugin {
 
             elasticSearchContextHolder(ElasticSearchContextHolder) {
                 config = esConfig
+                proxyHandler = ref('proxyHandler')
             }
             elasticSearchHelper(ElasticSearchHelper) {
                 elasticSearchClient = ref('elasticSearchClient')
@@ -91,7 +92,7 @@ class ElasticsearchGrailsPlugin extends Plugin {
                 elasticSearchContextHolder = ref('elasticSearchContextHolder')
                 elasticSearchClient = ref('elasticSearchClient')
                 jsonDomainFactory = ref('jsonDomainFactory')
-                grailsApplication = grailsApplication
+                domainClassUnWrapperChain = ref('domainClassUnWrapperChain')
             }
             mappingMigrationManager(MappingMigrationManager) {
                 elasticSearchContextHolder = ref('elasticSearchContextHolder')

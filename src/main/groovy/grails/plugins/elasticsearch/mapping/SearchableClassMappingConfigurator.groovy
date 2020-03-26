@@ -50,7 +50,7 @@ class SearchableClassMappingConfigurator implements ElasticSearchConfigAware {
      * Init method.
      */
     void configureAndInstallMappings() {
-        def domainClasses = domainReflectionService.getDomainEntities()
+        Collection<DomainEntity> domainClasses = domainReflectionService.getDomainEntities()
         Collection<SearchableClassMapping> mappings = mappings(domainClasses)
         installMappings(mappings)
     }

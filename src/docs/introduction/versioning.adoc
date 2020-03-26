@@ -1,31 +1,30 @@
 === Plugin Versioning
 
-[NOTE]
-====
-The versioning model has changed. The version number of the plugin will reflect the one of the underline integrated Elasticsearch.
+==== Versioning
+
+In order to simply the versioning, with v2.5.0 the Elasticsearch Grails plugin is using Semantic Versioning 2.0.0. To understand what that means, please see the specification https://semver.org/[documentation^, role="ext-link"].
+
+==== Old Versioning Strategy (Upto 2.4.x and earlier versions)
+
+The version number of the plugin will reflect the one of the underline integrated Elasticsearch.
 If necessary a 4th level point release number will be used for successive changes on the plugin's code with same version of Elasticsearch.
-====
 
 `<GRAILS_VERSION>.<ES_VERSION>.<FEATURE/PATCH_VERSION>`, where there isn't really a 1-to-1 plugin version to grails or es version, but we just increase our major or minor version by one, whenever there are breaking changes on either Grails or ES.
 `<GRAILS_VERSION>.<ES_VERSION>.<FEATURE/PATCH_VERSION>`, where there isn't really a 1-to-1 plugin version to grails or es version, but we just increase our major or minor version by one, whenever there are breaking changes on either Grails or ES. Therefore future release versions could look something similar to this (depending on Grails and Elasticsearch versions):
 
-|===
-s| Plugin Version    s| Grails                s| Elasticsearch
-s| 2.4.0             s| 3.3.x                 s| 5.x
-s| 1.4.1             s| 3.1.x                 s| 5.x (tested with 5.4.1)
-s| 1.2.0             s| 3.1.x                 s| 2.3.x
-s| 1.0.0.2           s| 3.0.x                 s| 1.x
-s| 0.1.0             s| 2.4.x                 s| 2.1.x
-s| 0.0.4.5           s| 2.4.x                 s| 1.x
- | 0.2.x              | 2.4.x                  | 2.3.x
- | 0.3.x              | 2.4.x                  | (hypothetical) 2.4.x
- | 0.5.x              | 2.4.x                  | (hypothetical) 5.0.x
- | 1.3.x              | 3.1.x                  | (hypothetical) 2.4.x
- | 1.5.x              | 3.1.x                  | (hypothetical) 5.0.x
- | 2.3.x              | (hypothetical) 3.2.x   | (hypothetical) 2.3.x
- | 3.3.x              | (hypothetical) 4.0.x   | (hypothetical) 2.3.x
-|===
+==== Version Table
 
-_Existing versions in_ *bold*
+|===
+| Plugin Version    s| Grails                s| Elasticsearch
+| 2.5.0             s| 3.3.x                 s| 5.5.3
+| 2.4.2             s| 3.3.x                 s| 5.x
+| 2.4.1             s| 3.3.x                 s| 5.x
+| 2.4.0             s| 3.3.x                 s| 5.x
+| 1.4.1             s| 3.1.x                 s| 5.x (tested with 5.4.1)
+| 1.2.0             s| 3.1.x                 s| 2.3.x
+| 1.0.0.2           s| 3.0.x                 s| 1.x
+| 0.1.0             s| 2.4.x                 s| 2.1.x
+| 0.0.4.5           s| 2.4.x                 s| 1.x
+|===
 
 Current version is *{revnumber}* (for Grails 2.x the latest version is *0.1.0*)

@@ -1,5 +1,3 @@
-import de.undercouch.gradle.tasks.download.Download
-
 buildscript {
     ext {
         grailsVersion = project.grailsVersion
@@ -15,7 +13,7 @@ buildscript {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
         classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.3'
         classpath 'org.ajoberstar:gradle-git:1.4.2'
-        classpath "org.grails.plugins:hibernate5:${gormVersion-".RELEASE"}"
+        classpath "org.grails.plugins:hibernate5:7.0.0"
     }
 }
 
@@ -25,7 +23,7 @@ plugins {
     id "de.undercouch.download" version "3.2.0"
 }
 
-version "2.5.0-dss1"
+version "3.0.0.BUILD-SNAPSHOT-dss1"
 group "org.grails.plugins"
 
 apply plugin: 'eclipse'
@@ -36,18 +34,23 @@ apply plugin: "org.grails.grails-gsp"
 apply plugin: 'maven-publish'
 
 ext {
-    gradleWrapperVersion = project.gradleWrapperVersion
     elasticsearchVersion = project.elasticsearchVersion
     elasticsearchAttachmentsVersion = project.elasticsearchAttachmentsVersion
 }
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven { url "https://repo.grails.org/grails/core" }
+}
+
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
 }
 
 dependencyManagement {
@@ -73,6 +76,7 @@ sourcesJar {
 }
 
 dependencies {
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
     provided 'org.springframework.boot:spring-boot-starter-logging'
     provided "org.springframework.boot:spring-boot-starter-actuator"
     provided "org.springframework.boot:spring-boot-autoconfigure"
@@ -102,7 +106,6 @@ dependencies {
     testRuntime 'org.apache.tomcat:tomcat-jdbc'
 
     testCompile "org.grails:grails-gorm-testing-support"
-    testCompile "org.grails:grails-plugin-testing"
     testCompile "org.grails:grails-web-testing-support"
 
     testCompile 'com.vividsolutions:jts:1.13'
@@ -112,14 +115,14 @@ dependencies {
     compile fileTree(dir: "libs/elasticsearch", include: '*.jar')
 }
 
-task downloadAttachmentsPlugin(type: Download) {
+task("downloadAttachmentsPlugin", type: de.undercouch.gradle.tasks.download.Download) {
     src "https://artifacts.elastic.co/downloads/elasticsearch-plugins/mapper-attachments/mapper-attachments-${elasticsearchVersion}.zip"
     dest "libs/mapper-attachments-${elasticsearchVersion}.zip"
     overwrite true
     onlyIfNewer true
 }
 
-task downloadAndUnzipAttachmentsPlugin(dependsOn: downloadAttachmentsPlugin) {
+task("downloadAndUnzipAttachmentsPlugin", dependsOn: downloadAttachmentsPlugin) {
     doLast {
         copy {
             from zipTree(downloadAttachmentsPlugin.dest)
@@ -137,18 +140,9 @@ task cleanLibsDir(type: Delete) {
     delete fileTree(dir: 'libs')
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = gradleWrapperVersion
-}
+check.finalizedBy("cleanDataDir")
+clean.finalizedBy("cleanDataDir", "cleanLibsDir")
 
-check.doLast {
-    cleanDataDir.execute()
-}
-
-clean.doLast {
-    cleanDataDir.execute()
-    cleanLibsDir.execute()
-}
 
 task cleanDataDir(type: Delete) {
     delete fileTree(dir: 'data')
@@ -156,10 +150,10 @@ task cleanDataDir(type: Delete) {
 
 bootRun {
     jvmArgs('-Dspring.output.ansi.enabled=always')
-    addResources = true
+    sourceResources sourceSets.main
 }
 // enable if you wish to package this plugin as a standalone application
-bootRepackage.enabled = false
+bootJar.enabled = false
 
 apply from: "gradle/documentation.gradle"
 
