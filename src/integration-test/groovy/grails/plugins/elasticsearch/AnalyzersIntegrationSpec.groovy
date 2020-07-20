@@ -16,6 +16,7 @@ import test.all.Post
 class AnalyzersIntegrationSpec extends Specification implements ElasticSearchSpec {
 
     def setup() {
+        resetElasticsearch()
         save new Post(
                 subject: "[abc] Grails 3.0 M1 Released!",
                 body: "Grails 3.0 milestone 1 is now available.")
@@ -39,13 +40,13 @@ class AnalyzersIntegrationSpec extends Specification implements ElasticSearchSpe
         refreshIndices()
 
         expect:
-        search(Post, 'xyz').total == 3
+        search(Post, 'xyz').total.value == 1
 
         when:
         def results = Post.search('xyz')
 
         then:
-        results.total == 3
+        results.total.value == 1
     }
 
     def "search by subject"() {
@@ -53,7 +54,7 @@ class AnalyzersIntegrationSpec extends Specification implements ElasticSearchSpe
         refreshIndices()
 
         expect:
-        search(Post, QueryBuilders.matchQuery('subject', 'xyz')).total == 0
+        search(Post, QueryBuilders.matchQuery('subject', 'xyz')).total.value == 0
 
         when:
         def results = Post.search {
@@ -61,7 +62,7 @@ class AnalyzersIntegrationSpec extends Specification implements ElasticSearchSpe
         }
 
         then:
-        results.total == 0
+        results.total.value == 0
     }
 
     def "search by body"() {
@@ -69,7 +70,7 @@ class AnalyzersIntegrationSpec extends Specification implements ElasticSearchSpe
         refreshIndices()
 
         expect:
-        search(Post, QueryBuilders.matchQuery('body', 'xyz')).total == 1
+        search(Post, QueryBuilders.matchQuery('body', 'xyz')).total.value == 1
 
         when:
         def results = Post.search {
@@ -77,7 +78,7 @@ class AnalyzersIntegrationSpec extends Specification implements ElasticSearchSpe
         }
 
         then:
-        results.total == 1
+        results.total.value == 1
         results.searchResults[0].body.startsWith('[xyz] GORM')
     }
 

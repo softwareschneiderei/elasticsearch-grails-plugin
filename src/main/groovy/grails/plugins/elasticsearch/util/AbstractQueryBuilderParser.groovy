@@ -2,11 +2,10 @@ package grails.plugins.elasticsearch.util
 
 import groovy.transform.CompileStatic
 import org.elasticsearch.common.ParsingException
-import org.elasticsearch.common.xcontent.NamedXContentRegistry
+import org.elasticsearch.common.xcontent.NamedObjectNotFoundException
 import org.elasticsearch.common.xcontent.XContentLocation
 import org.elasticsearch.common.xcontent.XContentParser
 import org.elasticsearch.index.query.QueryBuilder
-import org.elasticsearch.index.query.QueryParseContext
 
 /**
  * Created by ehauske on 2/08/17.
@@ -41,12 +40,9 @@ class AbstractQueryBuilderParser {
 
         QueryBuilder result
         try {
-            def object = parser.namedObject(Optional.class, queryName, new QueryParseContext(parser))
-            result = (QueryBuilder) object.get()
-        } catch (NamedXContentRegistry.UnknownNamedObjectException e) {
-            // Preserve the error message from 5.0 until we have a compellingly better message so we don't break BWC.
-            // This intentionally doesn't include the causing exception because that'd change the "root_cause" of any unknown query errors
-            throw new ParsingException(new XContentLocation(e.lineNumber, e.columnNumber), "no [query] registered for [${e.name}]")
+            result = parser.namedObject(QueryBuilder, queryName, parser)
+        } catch (NamedObjectNotFoundException e) {
+            throw new ParsingException(new XContentLocation(e.lineNumber, e.columnNumber), e.toString())
         }
 
         //end_object of the specific query (e.g. match, multi_match etc.) element

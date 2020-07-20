@@ -1,6 +1,26 @@
 === History
 
+==== Grails 4.x version
+
+** 3.0.0.M1
+*** Upgraded to Grails 4.0.0
+*** Upgraded to Elasticsearch 7.8.0
+**** Return type of count method in ElasticSearchService is now `java.lang.Long` (was `java.lang.Integer` before)
+**** The property `total` in class `grails.plugins.elasticsearch.ElasticSearchResult` is now of type `org.apache.lucene.search.TotalHits`
+*** Make java.time classes usable
+*** Make aggregations usable with this plugin
+
+
 ==== Grails 3.x version
+
+** 2.7.0.M1
+*** Upgraded to Grails 3.3.10
+*** Upgraded to Elasticsearch 7.3.0
+**** Return type of count method in ElasticSearchService is now `java.lang.Long` (was `java.lang.Integer` before)
+**** The property `total` in class `grails.plugins.elasticsearch.ElasticSearchResult` is now of type `org.apache.lucene.search.TotalHits`
+*** Make java.time classes usable
+*** Make aggregations usable with this plugin
+
 
 * May 10, 2018
 ** 2.4.1

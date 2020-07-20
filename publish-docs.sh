@@ -1,56 +1,66 @@
 #!/bin/bash
 set -e
 
-echo "Generating Docs"
+EXIT_STATUS=0
+if [[ $TRAVIS_BRANCH =~ ^master|[234]\..\.x$ && $TRAVIS_REPO_SLUG == puneetbehl/elasticsearch-grails-plugin && $TRAVIS_PULL_REQUEST == 'false' ]]; then
 
-./gradlew docs || EXIT_STATUS=$?
+  echo "Generating Docs"
 
-git config --global user.name "$GIT_NAME"
-git config --global user.email "$GIT_EMAIL"
-git config --global credential.helper "store --file=~/.git-credentials"
-echo "https://$GH_TOKEN:@github.com" > ~/.git-credentials
+  ./gradlew docs || EXIT_STATUS=$?
 
+  if [[ $EXIT_STATUS == 0 ]]; then
+      git config --global user.name "$GIT_NAME"
+      git config --global user.email "$GIT_EMAIL"
+      git config --global credential.helper "store --file=~/.git-credentials"
+      echo "https://$GH_TOKEN:@github.com" > ~/.git-credentials
 
-echo "Publishing Documentation"
+      echo "Publishing Documentation"
 
-git clone https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git -b gh-pages gh-pages --single-branch > /dev/null
-cd gh-pages
+      git clone https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git -b gh-pages gh-pages --single-branch > /dev/null
+      cd gh-pages
 
-# If this is the master branch then update the snapshot
-if [[ $TRAVIS_BRANCH == 'master' ]]; then
-    mkdir -p snapshot
-    cp -r ../build/docs/manual/. ./snapshot/
+      # If this is the master branch then update the snapshot
+      if [[ $TRAVIS_BRANCH == 'master' ]]; then
+          mkdir -p snapshot
+          cp -r ../build/docs/manual/. ./snapshot/
 
-    git add snapshot/*
+          git add snapshot/*
+      fi
+
+      # If there is a tag present then this becomes the latest
+      if [[ -n $TRAVIS_TAG ]]; then
+
+          if [[ $TRAVIS_BRANCH == 'master' ]]; then
+            git rm -rf latest/
+            mkdir -p latest
+            cp -r ../build/docs/manual/. ./latest/
+            git add latest/*
+          fi
+
+          version="$TRAVIS_TAG"
+          version=${version:1}
+          majorVersion=${version:0:4}
+          majorVersion="${majorVersion}x"
+
+          mkdir -p "$version"
+          cp -r ../build/docs/manual/. "./$version/"
+          git add "$version/*"
+
+          mkdir -p "$majorVersion"
+          cp -r ../build/docs/manual/. "./$majorVersion/"
+          git add "$majorVersion/*"
+
+      fi
+
+      cp -r ../build/docs/index.html ./index.html
+
+      git commit -a -m "Updating docs for Travis build: https://travis-ci.org/$TRAVIS_REPO_SLUG/builds/$TRAVIS_BUILD_ID"
+      git push origin HEAD
+
+      cd ..
+
+      rm -rf gh-pages
+
+  fi
+
 fi
-
-# If there is a tag present then this becomes the latest
-if [[ -n $TRAVIS_TAG ]]; then
-    git rm -rf latest/
-    mkdir -p latest
-    cp -r ../build/docs/manual/. ./latest/
-    git add latest/*
-
-    version="$TRAVIS_TAG"
-    version=${version:1}
-    majorVersion=${version:0:4}
-    majorVersion="${majorVersion}x"
-
-    mkdir -p "$version"
-    cp -r ../build/docs/manual/. "./$version/"
-    git add "$version/*"
-
-    mkdir -p "$majorVersion"
-    cp -r ../build/docs/manual/. "./$majorVersion/"
-    git add "$majorVersion/*"
-
-fi
-
-cp -r ../build/docs/index.html ./index.html
-
-git commit -a -m "Updating docs for Travis build: https://travis-ci.org/$TRAVIS_REPO_SLUG/builds/$TRAVIS_BUILD_ID"
-git push origin HEAD
-
-cd ..
-
-rm -rf gh-pages

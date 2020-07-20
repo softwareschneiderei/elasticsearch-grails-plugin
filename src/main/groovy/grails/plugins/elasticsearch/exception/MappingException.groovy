@@ -9,11 +9,7 @@ class MappingException extends Exception {
         super()
     }
 
-    public MappingException(String message) {
+    MappingException(String message) {
         super(message)
-    }
-
-    public MappingException(String message, Throwable cause) {
-        super(message, cause)
     }
 }

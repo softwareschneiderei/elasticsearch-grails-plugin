@@ -1,20 +1,17 @@
 package grails.plugins.elasticsearch.transients
 
 import grails.core.GrailsApplication
-import grails.testing.mixin.integration.Integration
+import grails.gorm.transactions.Rollback
 import grails.plugins.elasticsearch.ElasticSearchAdminService
 import grails.plugins.elasticsearch.ElasticSearchService
 import grails.plugins.elasticsearch.mapping.SearchableClassMappingConfigurator
-import grails.gorm.transactions.Rollback
+import grails.testing.mixin.integration.Integration
+import org.apache.lucene.search.join.ScoreMode
+import org.elasticsearch.index.query.NestedQueryBuilder
+import org.elasticsearch.index.query.QueryBuilders
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
-import test.transients.Anagram
-import test.transients.Calculation
-import test.transients.Color
-import test.transients.Palette
-import test.transients.Player
-import test.transients.Team
-import test.transients.Fan
+import test.transients.*
 
 /**
  * Created by @marcos-carceles on 29/01/15.
@@ -32,9 +29,11 @@ class TransientPropertiesIntegrationSpec extends Specification {
     @Autowired
     SearchableClassMappingConfigurator searchableClassMappingConfigurator
 
-    void 'when includeTransients config is false only properties explictly included in only are indexed and searchable'() {
-        expect:
+    void 'when includeTransients config is false only properties explicitly included in only are indexed and searchable'() {
+        given:
         grailsApplication.config.elasticSearch.includeTransients == false
+        elasticSearchAdminService.deleteIndex()
+        searchableClassMappingConfigurator.configureAndInstallMappings()
 
         when: "Indexing some instances"
         def toIndex = []
@@ -45,20 +44,20 @@ class TransientPropertiesIntegrationSpec extends Specification {
         elasticSearchService.index(toIndex)
         elasticSearchAdminService.refresh()
 
-        and: "searching for explictly indexed transients"
+        and: "searching for explicitly indexed transients"
         def results = Palette.search("cyan")
 
         then: "we find results when searching for transients explicitly mapped with 'only'"
-        results.total == 1
+        results.total.value == 1
 
         and: "transients use data stored on ElasticSearch"
         results.searchResults.first().complementaries == ['cyan', 'yellow']
         results.searchResults.first().description == null //as author is not stored in ElasticSearch
 
         and: "we don't find any other transients"
-        Anagram.search("elbaveilebnu").total == 0
-        Calculation.search("24").total == 0
-        Calculation.search("63").total == 0
+        Anagram.search("elbaveilebnu").total.value == 0
+        Calculation.search("24").total.value == 0
+        Calculation.search("63").total.value == 0
     }
 
     void 'when includeTransients config is true all non excluded transient properties are indexed and searchable'() {
@@ -78,11 +77,11 @@ class TransientPropertiesIntegrationSpec extends Specification {
         elasticSearchAdminService.refresh()
 
         then: "We can search using any transient"
-        Palette.search("cyan").total == 1
-        Anagram.search("elbaveilebnu").total == 1
-        Calculation.search("24").total == 1
-        Calculation.search("63").total == 1
-        Calculation.search("7").total == 0 //because division is not indexed
+        Palette.search("cyan").total.value == 1
+        Anagram.search("elbaveilebnu").total.value == 1
+        Calculation.search("24").total.value == 1
+        Calculation.search("63").total.value == 1
+        Calculation.search("7").total.value == 0 //because division is not indexed
 
         and: "transients on results use data stored on ElasticSearch"
         Calculation calc = Calculation.search("24").searchResults.first()
@@ -104,13 +103,18 @@ class TransientPropertiesIntegrationSpec extends Specification {
 
         when: "save and index an instance which hasMany associations mapped as component"
 		new Player(name:"Ronaldo").save(flush:true)
-        def toIndex = []
+        List toIndex = []
         toIndex << new Team(name: "Barcelona", strip:"White").save(flush: true)
         elasticSearchService.index(toIndex)
         elasticSearchAdminService.refresh()
 
         then: "We can search using the transient collection component"
-        Team.search("Ronaldo").total == 1
+        NestedQueryBuilder query = QueryBuilders.nestedQuery(
+                'players',
+                QueryBuilders.matchQuery('players.name', 'Ronaldo'),
+                ScoreMode.None
+        )
+        Team.search(query).total.value == 1
 
         and: "transients on search results using the component association use data stored on ElasticSearch"
         Team team = Team.search("Barcelona").searchResults.first()
@@ -138,7 +142,7 @@ class TransientPropertiesIntegrationSpec extends Specification {
         elasticSearchAdminService.refresh()
 
 		then: "we can't search using the transient reference"
-		Team.search("Eric").total == 0
+		Team.search("Eric").total.value == 0
 		
         and: "but searches using the parent are built using the association reference data stored on ElasticSearch"
 		Team team = Team.search("Barcelona").searchResults.first()
@@ -157,7 +161,7 @@ class TransientPropertiesIntegrationSpec extends Specification {
         elasticSearchService.unindex(toIndex)
         
     }
-	
+
 
 	
 }

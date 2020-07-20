@@ -18,7 +18,7 @@ class Store {
         autoImport(false)
     }
 
-    public String toString() {
+    String toString() {
         name
     }
 }

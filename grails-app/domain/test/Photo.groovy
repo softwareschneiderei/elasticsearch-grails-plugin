@@ -9,11 +9,12 @@ class Photo extends AbstractImage {
     }
 
     static searchable = {
-        url index: "not_analyzed"
+        name fielddata: true
+        url index: true
     }
 
 
-    public String toString() {
+    String toString() {
         return "Photo{" +
                 "id=" + id +
                 ",url='" + url + '\'' +

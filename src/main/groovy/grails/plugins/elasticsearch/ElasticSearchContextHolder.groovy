@@ -24,7 +24,7 @@ class ElasticSearchContextHolder {
     /**
      * A Set containing all the indices that were regenerated during migration
      */
-    Set<String> indexesRebuiltOnMigration = [] as Set
+    Set<String> indexesRebuiltOnMigration = [] as Set<String>
 
     /**
      * Adds a mapping context to the current mapping holder

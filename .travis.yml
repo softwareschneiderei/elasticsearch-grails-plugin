@@ -1,15 +1,23 @@
 language: groovy
 jdk:
 - openjdk8
+services:
+  - docker
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
 before_install:
 - cat /etc/hosts
 - sudo hostname "$(hostname | cut -c1-63)"
 - sed -e "s/^\\(127\\.0\\.0\\.1.*\\)/\\1 $(hostname | cut -c1-63)/" /etc/hosts | sudo
   tee /etc/hosts
 - cat /etc/hosts
+- docker pull docker.elastic.co/elasticsearch/elasticsearch:7.7.1
+- docker run -d --name elasticsearch -p 9200:9200 -p 9300:9300 -e "cluster.name=elasticsearch"  -e "discovery.type=single-node" elasticsearch:7.7.1
 before_script:
 - rm -rf target
-script: travis_wait 60 ./travis-build.sh
+script: ./travis-build.sh
 env:
   global:
   - GIT_NAME="Puneet Behl"

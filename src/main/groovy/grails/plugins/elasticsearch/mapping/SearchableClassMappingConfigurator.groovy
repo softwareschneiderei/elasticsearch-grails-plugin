@@ -21,6 +21,7 @@ import grails.plugins.elasticsearch.ElasticSearchAdminService
 import grails.plugins.elasticsearch.ElasticSearchContextHolder
 import grails.plugins.elasticsearch.util.ElasticSearchConfigAware
 import groovy.transform.CompileStatic
+import org.elasticsearch.ElasticsearchStatusException
 import org.elasticsearch.cluster.health.ClusterHealthStatus
 import org.elasticsearch.indices.InvalidIndexTemplateException
 import org.elasticsearch.transport.RemoteTransportException
@@ -77,7 +78,7 @@ class SearchableClassMappingConfigurator implements ElasticSearchConfigAware {
                 if (scpm.isComponent() && property.isPersistent()) {
                     Class<?> componentType = property.getReferencedPropertyType()
                     scpm.componentPropertyMapping = elasticSearchContext.getMappingContextByType(componentType)
-                } else if(scpm.isComponent()) {
+                } else if (scpm.isComponent()) {
                     Class<?> componentType = property.getDomainEntity().getRelatedClassType(scpm.propertyName)
                     scpm.componentPropertyMapping = elasticSearchContext.getMappingContextByType(componentType)
                 }
@@ -102,14 +103,16 @@ class SearchableClassMappingConfigurator implements ElasticSearchConfigAware {
         LOG.debug("Index settings are " + indexSettings)
         
         LOG.debug("Installing mappings...")
-        Map<SearchableClassMapping, Map> elasticMappings = buildElasticMappings(mappings)
+        Map<SearchableClassMapping, Map<String, Object>> elasticMappings = buildElasticMappings(mappings)
         LOG.debug "elasticMappings are ${elasticMappings.keySet()}"
 
         String strategyName = migrationConfig?.strategy as String ?: "none"
         MappingMigrationStrategy migrationStrategy = MappingMigrationStrategy.valueOf(strategyName)
         def mappingConflicts = []
 
-        Set<String> indices = mappings.findAll { it.isRoot() }.collect { it.indexName } as Set<String>
+        Set<String> indices = mappings
+                .findAll { it.isRoot() }
+                .collect { it.domainClass.fullName.toLowerCase() } as Set<String>
 
         //Install the mappings for each index all together
         indices.each { String indexName ->
@@ -132,7 +135,7 @@ class SearchableClassMappingConfigurator implements ElasticSearchConfigAware {
                 }
             } else { //We install the mappings one by one
                 indexMappings.each { SearchableClassMapping scm ->
-                    Map elasticMapping = elasticMappings[scm]
+                    Map<String, Object> elasticMapping = elasticMappings[scm]
                     // Install mapping
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Installing mapping [" + scm.elasticTypeName + "] => " + elasticMapping)
@@ -145,15 +148,29 @@ class SearchableClassMappingConfigurator implements ElasticSearchConfigAware {
                     } catch (InvalidIndexTemplateException e) {
                         LOG.warn("Could not install mapping ${scm.indexName}/${scm.elasticTypeName} due to ${e.message}, migrations needed")
                         mappingConflicts << new MappingConflict(scm: scm, exception: e)
+                    } catch (ElasticsearchStatusException e) {
+                        LOG.warn("Could not install mapping ${scm.indexName}/${scm.elasticTypeName} due to ${e.message}, migrations needed")
+                        mappingConflicts << new MappingConflict(scm: scm, exception: e)
+                    } catch (IOException e) {
+                        LOG.warn("Could not install mapping ${scm.indexName}/${scm.elasticTypeName} due to ${e.message}, migrations needed")
+                        mappingConflicts << new MappingConflict(scm: scm, exception: e)
                     }
                 }
             }
             //Create them only if they don't exist so it does not mess with other migrations
             String queryingIndex = queryingIndexFor(indexName)
             String indexingIndex = indexingIndexFor(indexName)
-            if(!es.aliasExists(queryingIndex)) {
-                es.pointAliasTo(queryingIndex, indexName)
-                es.pointAliasTo(indexingIndex, indexName)
+            boolean queryingIndexExists = es.aliasExists(queryingIndex)
+            boolean indexingIndexExists = es.aliasExists(indexingIndex)
+            if (!queryingIndexExists || !indexingIndexExists) {
+                indexName = es.indexNameByAlias(indexName)
+
+                if (!queryingIndexExists) {
+                    es.pointAliasTo(queryingIndex, indexName)
+                }
+                if (!indexingIndexExists) {
+                    es.pointAliasTo(indexingIndex, indexName)
+                }
             }
         }
         if(mappingConflicts) {
@@ -163,7 +180,6 @@ class SearchableClassMappingConfigurator implements ElasticSearchConfigAware {
 
         es.waitForClusterStatus(ClusterHealthStatus.YELLOW)
     }
-
 
     /**
      * Creates the Elasticsearch index once unblocked and its read and write aliases
@@ -196,15 +212,19 @@ class SearchableClassMappingConfigurator implements ElasticSearchConfigAware {
                 for (Map.Entry<String, Object> entry : indexDefaults.entrySet()) {
                     String key = entry.getKey();
                     if(key == 'numberOfReplicas') key = 'number_of_replicas'
-                    settings.put("index." + key, entry.getValue())
+                    if (key == 'analysis') {
+                        settings.put('analysis', entry.getValue())
+                    } else {
+                        settings.put("index." + key, entry.getValue())
+                    }
                 }
             }
         }
         settings
     }
 
-    private Map<SearchableClassMapping, Map> buildElasticMappings(Collection<SearchableClassMapping> mappings) {
-        Map<SearchableClassMapping, Map> elasticMappings = [:]
+    private Map<SearchableClassMapping, Map<String, Object>> buildElasticMappings(Collection<SearchableClassMapping> mappings) {
+        Map<SearchableClassMapping, Map<String, Object>> elasticMappings = [:]
         for (SearchableClassMapping scm : mappings) {
             if (scm.isRoot()) {
                 elasticMappings << [(scm) : ElasticSearchMappingFactory.getElasticMapping(scm)]

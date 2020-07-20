@@ -19,12 +19,9 @@ import test.transients.Palette
 @Integration
 class ElasticSearchMappingFactorySpec extends Specification {
 
-    @Autowired
-    GrailsApplication grailsApplication
-    @Autowired
-    SearchableClassMappingConfigurator searchableClassMappingConfigurator
-    @Autowired
-    ElasticSearchContextHolder elasticSearchContextHolder
+    @Autowired GrailsApplication grailsApplication
+    @Autowired SearchableClassMappingConfigurator searchableClassMappingConfigurator
+    @Autowired ElasticSearchContextHolder elasticSearchContextHolder
 
     void setup() {
         grailsApplication.config.elasticSearch.includeTransients = true
@@ -40,7 +37,7 @@ class ElasticSearchMappingFactorySpec extends Specification {
     @Unroll('#clazz / #property is mapped as #expectedType')
     void "calculates the correct ElasticSearch types"() {
         given:
-        def scm = elasticSearchContextHolder.getMappingContextByType(clazz)
+        SearchableClassMapping scm = elasticSearchContextHolder.getMappingContextByType(clazz)
 
         when:
         Map mapping = ElasticSearchMappingFactory.getElasticMapping(scm)
@@ -53,6 +50,7 @@ class ElasticSearchMappingFactorySpec extends Specification {
 
         Building | 'name'            || 'text'
         Building | 'date'            || 'date'
+        Building | 'localDate'       || 'date'
         Building | 'location'        || 'geo_point'
 
         Product  | 'price'           || 'float'
@@ -70,4 +68,3 @@ class ElasticSearchMappingFactorySpec extends Specification {
         Anagram  | 'palindrome'      || 'boolean'
     }
 }
-//['string', 'integer', 'long', 'float', 'double', 'boolean', 'null', 'date']

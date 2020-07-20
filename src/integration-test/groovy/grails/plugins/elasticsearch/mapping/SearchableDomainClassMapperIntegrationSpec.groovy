@@ -1,14 +1,11 @@
 package grails.plugins.elasticsearch.mapping
 
-import spock.lang.Specification
-
-import grails.testing.mixin.integration.Integration
 import grails.plugins.elasticsearch.ElasticSearchContextHolder
-
+import grails.plugins.elasticsearch.ElasticSearchSpec
+import grails.testing.mixin.integration.Integration
 import org.springframework.beans.factory.annotation.Autowired
-
+import spock.lang.Specification
 import test.Building
-import test.File
 import test.Person
 import test.Product
 
@@ -16,12 +13,14 @@ import test.Product
  * Created by @marcos-carceles on 20/05/15.
  */
 @Integration
-class SearchableDomainClassMapperIntegrationSpec extends Specification {
+class SearchableDomainClassMapperIntegrationSpec extends Specification implements ElasticSearchSpec {
 
-    @Autowired
-    DomainReflectionService domainReflectionService
+    @Autowired DomainReflectionService domainReflectionService
+    @Autowired ElasticSearchContextHolder elasticSearchContextHolder
 
-    ElasticSearchContextHolder elasticSearchContextHolder
+    void setup() {
+        resetElasticsearch()
+    }
 
     def "elasticSearch.defaultExcludedProperties are not mapped"() {
         expect:
@@ -57,21 +56,6 @@ class SearchableDomainClassMapperIntegrationSpec extends Specification {
         locationMapping.isGeoPoint()
     }
 
-    void 'a domain class with mapping attachment: true is mapped as attachment'() {
-        given: 'a mapper for File'
-        def entity = domainReflectionService.getDomainEntity(File)
-        def mapper = domainReflectionService.createDomainClassMapper(entity)
-
-        when: 'the mapping is built'
-        def classMapping = mapper.buildClassMapping()
-
-        then: 'the attachment property is mapped as attachment'
-        classMapping.domainClass == entity
-        classMapping.elasticTypeName == 'file'
-        def locationMapping = classMapping.propertiesMapping.find { it.propertyName == 'attachment' }
-        locationMapping.isAttachment()
-    }
-
     void 'the correct mapping is passed to the ES server'() {
         given: 'a class mapping for Building'
         def entity = domainReflectionService.getDomainEntity(Building)
@@ -82,8 +66,7 @@ class SearchableDomainClassMapperIntegrationSpec extends Specification {
         def mapping = ElasticSearchMappingFactory.getElasticMapping(classMapping)
 
         then:
-        mapping.building?.properties?.location == [type          : 'geo_point',
-                                                   include_in_all: true]
+        mapping.building?.properties?.location == [type: 'geo_point']
     }
 
     void 'a mapping can be built from a domain class'() {

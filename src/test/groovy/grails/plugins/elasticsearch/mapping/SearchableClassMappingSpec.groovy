@@ -30,17 +30,17 @@ class SearchableClassMappingSpec extends Specification implements DataTest, Auto
         SearchableClassMapping scm = new SearchableClassMapping(grailsApplication, new DomainEntity(domainReflectionService, persistentEntity), [])
 
         then:
-        scm.indexName == packageName
-        scm.queryingIndex == IndexNamingUtils.queryingIndexFor(packageName)
-        scm.indexingIndex == IndexNamingUtils.indexingIndexFor(packageName)
+        scm.indexName == indexName
+        scm.queryingIndex == IndexNamingUtils.queryingIndexFor(indexName)
+        scm.indexingIndex == IndexNamingUtils.indexingIndexFor(indexName)
         scm.queryingIndex != scm.indexingIndex
         scm.indexName != scm.queryingIndex
         scm.indexName != scm.indexingIndex
 
         where:
-        className       || packageName
-        Post.class.name || "test.all"
-        Toy.class.name  || "test.custom.id"
+        className       || indexName
+        Post.class.name || Post.class.getName().toLowerCase()
+        Toy.class.name  || Toy.class.getName().toLowerCase()
     }
 
     void testGetIndexName() {
@@ -49,7 +49,7 @@ class SearchableClassMappingSpec extends Specification implements DataTest, Auto
         SearchableClassMapping mapping = new SearchableClassMapping(grailsApplication, new DomainEntity(domainReflectionService, persistentEntity), null)
 
         then:
-        'test' == mapping.getIndexName()
+        Photo.class.getName().toLowerCase() == mapping.getIndexName()
     }
 
     void testManuallyConfiguredIndexName() {
@@ -70,7 +70,7 @@ class SearchableClassMappingSpec extends Specification implements DataTest, Auto
         String indexName = mapping.getIndexName()
 
         then:
-        'test.uppercase' == indexName
+        UpperCase.class.name.toLowerCase() == indexName
     }
 
     void cleanup() {

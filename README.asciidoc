@@ -1,16 +1,5 @@
 == Elasticsearch Grails plugin image:https://travis-ci.org/puneetbehl/elasticsearch-grails-plugin.svg?branch=master["Build Status", link="https://travis-ci.org/puneetbehl/elasticsearch-grails-plugin"]
 
-An Elasticsearch plugin for Grails; This project is a fork based on the great work done by the guys at:
-
-* https://github.com/mstein/elasticsearch-grails-plugin
-* https://github.com/noamt/elasticsearch-grails-plugin
-
-=== Why would you want to fork the original Elasticsearch plugin?
-
-The original Elasticsearch plugin relies on *Hibernate-specific* GORM components, thus rendering it unusable if you back your Grails application by any other database.
-
-=== Documentation
-
 The plugin documentation can be found at https://puneetbehl.github.io/elasticsearch-grails-plugin/index.html
 
 For latest stable version of plugin documentation, https://puneetbehl.github.io/elasticsearch-grails-plugin/latest/index.html[Click Here]
@@ -24,7 +13,7 @@ Edit your project's +build.gradle+ file, by adding the plugin's dependency decla
 ----
 dependencies {
     ...
-    compile "org.grails.plugins:elasticsearch:2.4.2"
+    compile "org.grails.plugins:elasticsearch:3.0.0.M1"
     ...
 
 }
@@ -33,10 +22,19 @@ dependencies {
 
 === Versioning
 
-In order to simply the versioning, with v2.5.0 the Elasticsearch Grails plugin is using Semantic Versioning 2.0.0. To understand what that means, please see the specification [documentation](https://semver.org/).
+In order to simply the versioning, with v3.0.0.M1 the Elasticsearch Grails plugin is using Semantic Versioning 2.0.0. To understand what that means, please see the specification [documentation](https://semver.org/).
 
 |===
 |Plugin Version | Grails Version | Elasticsearch Version
+
+
+|3.0.0
+|4.0.x
+|7.8.0
+
+|2.7.0
+|3.3.x
+|7.3.0
 
 |2.5.0
 |3.3.x
@@ -116,6 +114,7 @@ YourKit, LLC is the creator of https://www.yourkit.com/java/profiler/[YourKit Ja
 and https://www.yourkit.com/.net/profiler/[YourKit .NET Profiler],
 innovative and intelligent tools for profiling Java and .NET applications.
 
+
 == License
 
 ----
@@ -134,8 +133,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ----
 
+==== NOTE
 
+This project is a fork based on the great work done by the guys at:
 
+* https://github.com/mstein/elasticsearch-grails-plugin
+* https://github.com/noamt/elasticsearch-grails-plugin
+
+==== Why would you want to fork the original Elasticsearch plugin?
+
+The original Elasticsearch plugin relies on *Hibernate-specific* GORM components, thus rendering it unusable if you back your Grails application by any other database.
 
 ==== Here, have a yak:
 ----

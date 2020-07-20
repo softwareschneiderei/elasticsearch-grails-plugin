@@ -1,31 +1,21 @@
 package grails.plugins.elasticsearch.mapping
 
-import spock.lang.Specification
-import spock.lang.Unroll
-
+import grails.plugins.elasticsearch.ElasticSearchSpec
 import grails.testing.mixin.integration.Integration
 import org.grails.datastore.mapping.model.MappingContext
-
 import org.springframework.beans.factory.annotation.Autowired
-
+import spock.lang.Specification
+import spock.lang.Unroll
 import test.Person
 import test.Photo
 import test.Spaceship
-import test.transients.Color
-import test.transients.Fan
-import test.transients.Palette
-import test.transients.Player
-import test.transients.Team
-
+import test.transients.*
 
 @Integration
-class DomainReflectionSpec extends Specification {
+class DomainReflectionSpec extends Specification implements ElasticSearchSpec {
 
-    @Autowired
-    DomainReflectionService domainReflectionService
-
-    @Autowired
-    MappingContext mappingContext
+    @Autowired DomainReflectionService domainReflectionService
+    @Autowired MappingContext mappingContext
 
     private static final Set<String> TEAM_PROPERTIES =
             ['id', 'version', 'name', 'strip', 'players', 'fans'] as Set
@@ -35,6 +25,10 @@ class DomainReflectionSpec extends Specification {
 
     private static final Map<String, Class<?>> TEAM_ASSOCIATIONS =
             [players: Player, fans: Fan]
+
+    void setup() {
+        resetElasticsearch()
+    }
 
     def "test.transients.Team"() {
         when:
@@ -355,10 +349,10 @@ class DomainReflectionSpec extends Specification {
     }
 
     private static final Set<String> PHOTO_PROPERTIES =
-            ['id', 'version', 'name', 'url'] as Set
+            ['id', 'version', 'name', 'url', 'size', 'type'] as Set
 
     private static final Set<String> PHOTO_PERSISTENT_PROPERTIES =
-            ['name', 'url'] as Set
+            ['name', 'url', 'size', 'type'] as Set
 
     private static final Map<String, Class<?>> PHOTO_ASSOCIATIONS = [:]
 
@@ -409,6 +403,32 @@ class DomainReflectionSpec extends Specification {
             name == 'url'
             typePropertyName == 'string'
             referencedPropertyType == String
+
+            !association
+            associationType == null
+            referencedDomainEntity == null
+        }
+
+        with(photo.getPropertyByName('type')) {
+            persistent
+
+            type == String
+            name == 'type'
+            typePropertyName == 'string'
+            referencedPropertyType == String
+
+            !association
+            associationType == null
+            referencedDomainEntity == null
+        }
+
+        with(photo.getPropertyByName('size')) {
+            persistent
+
+            type == int
+            name == 'size'
+            typePropertyName == 'int'
+            referencedPropertyType == int
 
             !association
             associationType == null
