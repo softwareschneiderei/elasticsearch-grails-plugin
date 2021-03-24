@@ -25,8 +25,9 @@ static searchable = {
 | To use only on domain (or collection of domains), make the property a searchable component.
 
 | converter 
-| A `Class` 
-| A `Class` to use as a converter during the marshalling/un-marshalling process for that peculiar property. That class must extends the `PropertyEditorSupport` java class.
+| A `Class` or the name of a bean (`String`)
+| A `Class` to use as a converter during the marshalling/un-marshalling process for that peculiar property. Supplying a spring bean name allows using a fully wired and configured converter defined in `resources.groovy`.
+ That class or bean must extend the `PropertyEditorSupport` java class.
 
 | excludeFromAll 
 | `true`, `false` 

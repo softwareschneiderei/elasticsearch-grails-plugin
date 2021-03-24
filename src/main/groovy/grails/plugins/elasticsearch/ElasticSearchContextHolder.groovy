@@ -1,6 +1,6 @@
 package grails.plugins.elasticsearch
 
-import grails.core.support.proxy.EntityProxyHandler
+import grails.core.support.proxy.ProxyHandler
 import grails.plugins.elasticsearch.mapping.DomainEntity
 import grails.plugins.elasticsearch.mapping.SearchableClassMapping
 import groovy.transform.CompileStatic
@@ -9,7 +9,7 @@ import org.grails.datastore.mapping.proxy.EntityProxy
 @CompileStatic
 class ElasticSearchContextHolder {
 
-    EntityProxyHandler proxyHandler;
+    ProxyHandler proxyHandler;
 
     /**
      * The configuration of the ElasticSearch plugin
