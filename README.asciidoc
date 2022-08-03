@@ -1,4 +1,4 @@
-== Elasticsearch Grails plugin image:https://travis-ci.org/puneetbehl/elasticsearch-grails-plugin.svg?branch=master["Build Status", link="https://travis-ci.org/puneetbehl/elasticsearch-grails-plugin"]
+== Elasticsearch Grails plugin https://github.com/grails-plugins/elasticsearch-grails-plugin/actions/workflows/gradle.yml[image:https://github.com/grails-plugins/elasticsearch-grails-plugin/actions/workflows/gradle.yml/badge.svg[!Java CI]]
 
 https://grails-plugins.github.io/elasticsearch-grails-plugin/[documentation about the plugin]
 
@@ -11,7 +11,7 @@ Edit your project's +build.gradle+ file, by adding the plugin's dependency decla
 ----
 dependencies {
     ...
-    compile "org.grails.plugins:elasticsearch:3.0.0.M1"
+    implementation "org.grails.plugins:elasticsearch:3.0.0-RC1"
     ...
 }
 ----
