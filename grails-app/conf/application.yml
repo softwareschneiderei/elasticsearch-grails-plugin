@@ -88,14 +88,36 @@ grails:
                 scriptlets: html
                 taglib: none
                 staticparts: none
+---
+hibernate:
+    cache:
+        queries: false
+        use_second_level_cache: true
+        use_query_cache: false
+        region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
+
+endpoints:
+    jmx:
+        unique-names: true
+
+dataSource:
+    dbCreate: create-drop
+    pooled: true
+    jmxExport: true
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+    url: jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+---
 elasticSearch:
+    cluster.name: docker-elasticsearch
     date:
         formats: ["yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"]
     client:
         connectTimeout: 2
         socketTimeout: 30
         hosts:
-        - {host: localhost, port: 9200}
+            - {host: localhost, port: 9200}
     defaultExcludedProperties: ['password']
     disableAutoIndex: false
     index:
@@ -116,7 +138,7 @@ environments:
             client:
                 mode: local
                 hosts:
-                  - {host: 127.0.0.1, port: 9200}
+                    - {host: 127.0.0.1, port: 9200}
                 transport.sniff: false
                 username:
                 password:
@@ -140,23 +162,3 @@ environments:
         elasticSearch:
             client:
                 mode: node
----
-hibernate:
-    cache:
-        queries: false
-        use_second_level_cache: true
-        use_query_cache: false
-        region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
-
-endpoints:
-    jmx:
-        unique-names: true
-
-dataSource:
-    dbCreate: create-drop
-    pooled: true
-    jmxExport: true
-    driverClassName: org.h2.Driver
-    username: sa
-    password:
-    url: jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE

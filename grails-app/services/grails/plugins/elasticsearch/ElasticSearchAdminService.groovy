@@ -4,6 +4,9 @@ import grails.plugins.elasticsearch.index.IndexRequestQueue
 import grails.plugins.elasticsearch.mapping.SearchableClassMapping
 import groovy.json.JsonSlurper
 import org.apache.http.util.EntityUtils
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequestBuilder
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest
@@ -313,13 +316,15 @@ class ElasticSearchAdminService {
         LOG.debug "Creating alias ${alias}, pointing to index ${index} ..."
         String oldIndex = indexPointedBy(alias)
         elasticSearchHelper.withElasticSearch { RestHighLevelClient client ->
+            IndicesAliasesRequest request = new IndicesAliasesRequest()
             if (oldIndex && oldIndex != index) {
                 LOG.debug "Index used to point to ${oldIndex}, removing ..."
-                new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.REMOVE)
-                        .index(oldIndex)
-                        .alias(alias)
+                IndicesAliasesRequest.AliasActions removeAliasAction = new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.REMOVE)
+                    .index(oldIndex)
+                    .alias(alias)
+                request.addAliasAction(removeAliasAction)
             }
-            IndicesAliasesRequest request = new IndicesAliasesRequest()
+
             IndicesAliasesRequest.AliasActions aliasAction =
                     new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.ADD)
                             .index(index)
@@ -426,17 +431,11 @@ class ElasticSearchAdminService {
     void waitForClusterStatus(ClusterHealthStatus status = ClusterHealthStatus.YELLOW) {
         elasticSearchHelper.withElasticSearch { RestHighLevelClient client ->
 
-            Request request = new Request("GET", "/_cluster/health")
-            request.addParameter("wait_for_status", "yellow")
-            Response response = client.getLowLevelClient().performRequest(request)
+            ClusterHealthRequest request = new ClusterHealthRequest()
+            request.waitForStatus(status)
+            ClusterHealthResponse response = client.cluster().health(request, RequestOptions.DEFAULT)
 
-            ClusterHealthStatus healthStatus
-
-            response.getEntity().getContent().withStream { is ->
-                Map<String, Object> map = XContentHelper.convertToMap(XContentType.JSON.xContent(), is, true)
-                healthStatus = ClusterHealthStatus.fromString((String) map.get("status"))
-            }
-            LOG.debug("Cluster status: ${healthStatus}")
+            LOG.debug("Cluster status: ${response.status}")
         }
     }
 

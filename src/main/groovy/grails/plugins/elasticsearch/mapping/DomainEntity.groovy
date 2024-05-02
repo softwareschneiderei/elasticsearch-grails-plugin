@@ -159,9 +159,9 @@ class DomainEntity {
         if (!_associationMap) {
             _associationMap = getMergedConfigurationMap(type, GormProperties.HAS_MANY)
 
-            getProperties().each {
-                if (reflectionService.isDomainEntity(it.type)) {
-                    _associationMap[it.name] = it.type
+            for (DomainProperty property :getProperties()) {
+                if (reflectionService.isDomainEntity(property.type)) {
+                    _associationMap[property.name] = property.type
                 }
             }
         }

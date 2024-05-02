@@ -1,0 +1,19 @@
+version: 2
+updates:
+- package-ecosystem: gradle
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "11:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: com.jfrog.artifactory
+    versions:
+    - 4.20.0
+    - 4.21.0
+  - dependency-name: org.apache.logging.log4j:log4j-api
+    versions:
+    - 2.14.0
+  - dependency-name: org.apache.logging.log4j:log4j-core
+    versions:
+    - 2.14.0

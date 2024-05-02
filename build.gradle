@@ -1,25 +1,16 @@
 buildscript {
-    ext {
-        grailsVersion = project.grailsVersion
-        gormVersion = project.gormVersion
-        elasticsearchVersion = project.elasticsearchVersion
-    }
     repositories {
-        mavenLocal()
         maven { url "https://repo.grails.org/grails/core" }
     }
     dependencies {
-        classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.6.1'
+        classpath "org.grails:grails-gradle-plugin:$grailsGradlePluginVersion"
+        classpath 'org.asciidoctor:asciidoctor-gradle-jvm:3.3.2'
+        classpath 'org.asciidoctor:asciidoctor-gradle-jvm-pdf:3.3.2'
+        classpath 'org.asciidoctor:asciidoctor-gradle-jvm-epub:3.3.2'
         classpath 'org.ajoberstar:gradle-git:1.7.2'
-        classpath "org.grails.plugins:hibernate5:${gormVersion-".RELEASE"}"
+        classpath "org.grails.plugins:hibernate5:${gormHibernateVersion-".RELEASE"}"
+        classpath "de.undercouch:gradle-download-task:5.1.0"
     }
-}
-
-plugins {
-    id "com.jfrog.bintray" version "1.8.5"
-    id 'com.jfrog.artifactory' version '4.17.2'
-    id "de.undercouch.download" version "4.1.1"
 }
 
 version "3.0.0.BUILD-SNAPSHOT-dss1"
@@ -28,27 +19,15 @@ group "org.grails.plugins"
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: "org.grails.grails-plugin"
-apply plugin: "org.grails.grails-plugin-publish"
+apply plugin: "org.grails.internal.grails-plugin-publish"
 apply plugin: "org.grails.grails-gsp"
-apply plugin: 'maven-publish'
-
-ext {
-    elasticsearchVersion = project.elasticsearchVersion
-}
+apply plugin: "de.undercouch.download"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
-    mavenCentral()
     maven { url "https://repo.grails.org/grails/core" }
-}
-
-configurations {
-    developmentOnly
-    runtimeClasspath {
-        extendsFrom developmentOnly
-    }
 }
 
 dependencyManagement {
@@ -71,8 +50,7 @@ groovydoc {
 sourcesJar {
     exclude "test/**"
     exclude "test/**/**"
-
-    classifier = 'sources'
+    archiveClassifier.set('sources')
 }
 
 dependencies {
@@ -90,14 +68,12 @@ dependencies {
     compile "org.grails.plugins:hibernate5"
     compile "org.grails.plugins:cache"
     compile "org.hibernate:hibernate-ehcache"
-
-    compile "org.apache.logging.log4j:log4j-api:2.7"
-    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.7'
-
+    compile "org.apache.logging.log4j:log4j-api:2.18.0"
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.18.0'
     compile "org.elasticsearch:elasticsearch:${elasticsearchVersion}"
     compile group: 'org.elasticsearch.client', name: 'elasticsearch-rest-client', version: elasticsearchVersion
     compile group: 'org.elasticsearch.client', name: 'elasticsearch-rest-high-level-client', version: elasticsearchVersion
-    compile group: 'org.locationtech.spatial4j', name: 'spatial4j', version: '0.7'
+    compile group: 'org.locationtech.spatial4j', name: 'spatial4j', version: '0.8'
 
     console "org.grails:grails-console"
 
@@ -151,7 +127,7 @@ apply from: "gradle/documentation.gradle"
 apply from: "gradle/publish.gradle"
 
 grailsPublish {
-    githubSlug = 'puneetbehl/elasticsearch-grails-plugin'
+    githubSlug = 'grails-plugins/elasticsearch-grails-plugin'
     license {
         name = 'Apache-2.0'
     }
