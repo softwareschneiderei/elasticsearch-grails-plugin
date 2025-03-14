@@ -133,6 +133,7 @@ environments:
                 mode: local
                 transport.sniff: true
             bulkIndexOnStartup: true
+            datastoreImpl: hibernateDatastore
     test:
         elasticSearch:
             client:
