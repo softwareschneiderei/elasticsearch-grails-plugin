@@ -105,9 +105,10 @@ dataSource:
     pooled: true
     jmxExport: true
     driverClassName: org.h2.Driver
+    dialect: org.hibernate.dialect.H2Dialect
     username: sa
     password:
-    url: jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:testDb;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
 ---
 elasticSearch:
     cluster.name: docker-elasticsearch

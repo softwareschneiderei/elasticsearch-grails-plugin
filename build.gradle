@@ -13,7 +13,7 @@ buildscript {
     }
 }
 
-version "3.0.0.BUILD-SNAPSHOT-dss1"
+version "4.0.0.SNAPSHOT"
 group "org.grails.plugins"
 
 apply plugin: 'eclipse'
@@ -26,8 +26,8 @@ apply plugin: "java-library"
 apply plugin: "maven-publish"
 
 java {
-    sourceCompatibility = JavaVersion.toVersion("8")
-    targetCompatibility = JavaVersion.toVersion("8")
+    sourceCompatibility = JavaVersion.toVersion("11")
+    targetCompatibility = JavaVersion.toVersion("11")
 }
 
 repositories {
@@ -73,7 +73,9 @@ dependencies {
     implementation "org.grails.plugins:cache"
     implementation "org.hibernate:hibernate-ehcache"
     implementation "org.apache.logging.log4j:log4j-api:2.20.0"
+    implementation 'io.github.virtualdogbert:logback-groovy-config:1.12.5'
     implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.20.0'
+
     api "org.elasticsearch:elasticsearch:${elasticsearchVersion}"
     api group: 'org.elasticsearch.client', name: 'elasticsearch-rest-client', version: elasticsearchVersion
     api group: 'org.elasticsearch.client', name: 'elasticsearch-rest-high-level-client', version: elasticsearchVersion
@@ -86,11 +88,14 @@ dependencies {
     testRuntimeOnly 'com.spatial4j:spatial4j:0.5'
     testRuntimeOnly 'org.apache.tomcat:tomcat-jdbc'
 
-    testCompileOnly "org.grails:grails-gorm-testing-support"
     testCompileOnly "org.grails:grails-web-testing-support"
 
     testCompileOnly 'com.vividsolutions:jts:1.13'
     testCompileOnly 'com.googlecode.json-simple:json-simple:1.1.1'
+
+    testImplementation "org.grails:grails-gorm-testing-support"
+    testImplementation "org.grails:grails-web-testing-support"
+    testImplementation "org.spockframework:spock-core"
 }
 
 task cleanLibsDir(type: Delete) {
@@ -105,6 +110,7 @@ task cleanDataDir(type: Delete) {
 }
 
 tasks.withType(Test) {
+    useJUnitPlatform()
     afterTest { desc, result ->
         logger.quiet " -- Executed test ${desc.name} [${desc.className}] with result: ${result.resultType}"
     }
@@ -129,6 +135,11 @@ apply from: "gradle/documentation.gradle"
 grails {
     pathingJar = true
 }
+
+tasks.withType(Test) {
+    useJUnitPlatform()
+}
+
 
 publishing {
     publications {
