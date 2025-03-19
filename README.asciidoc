@@ -1,6 +1,6 @@
 == Elasticsearch Grails plugin https://github.com/grails-plugins/elasticsearch-grails-plugin/actions/workflows/gradle.yml[image:https://github.com/grails-plugins/elasticsearch-grails-plugin/actions/workflows/gradle.yml/badge.svg[!Java CI]]
 
-https://grails-plugins.github.io/elasticsearch-grails-plugin/[documentation about the plugin]
+https://grails.github.io/elasticsearch-grails-plugin/latest/[Documentation about the plugin]
 
 === How can I obtain the plugin?
 
@@ -24,6 +24,9 @@ In order to simply the versioning, with v3.0.0.M1 the Elasticsearch Grails plugi
 |===
 |Plugin Version | Grails Version | Elasticsearch Version
 
+|4.0.0
+|5.3.x
+|7.11.2
 
 |3.0.0
 |4.0.x

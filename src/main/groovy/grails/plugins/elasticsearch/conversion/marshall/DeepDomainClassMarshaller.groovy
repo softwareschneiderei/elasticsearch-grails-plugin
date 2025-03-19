@@ -43,8 +43,8 @@ class DeepDomainClassMarshaller extends DefaultMarshaller {
                 def marshalledValue = marshallingContext.delegateMarshalling(propertyValue)
                 // Ugly XContentBuilder bug: it only checks for EXACT class match with java.util.Date
                 // (sometimes it appears to be java.sql.Timestamp for persistent objects)
-                if (marshalledValue instanceof java.util.Date) {
-                    marshalledValue = new java.util.Date(marshalledValue.getTime())
+                if (marshalledValue instanceof Date) {
+                    marshalledValue = new Date(marshalledValue.getTime())
                 }
                 marshallResult += [(prop.name): marshalledValue]
             }

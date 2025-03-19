@@ -19,8 +19,6 @@ import org.elasticsearch.action.support.broadcast.BroadcastResponse
 import org.elasticsearch.client.*
 import org.elasticsearch.cluster.health.ClusterHealthStatus
 import org.elasticsearch.common.settings.Settings
-import org.elasticsearch.common.xcontent.XContentHelper
-import org.elasticsearch.common.xcontent.XContentType
 import org.elasticsearch.index.query.MatchAllQueryBuilder
 import org.elasticsearch.index.reindex.DeleteByQueryRequest
 import org.elasticsearch.rest.RestStatus

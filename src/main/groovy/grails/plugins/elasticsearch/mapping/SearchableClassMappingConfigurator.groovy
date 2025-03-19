@@ -108,11 +108,11 @@ class SearchableClassMappingConfigurator implements ElasticSearchConfigAware {
 
         String strategyName = migrationConfig?.strategy as String ?: "none"
         MappingMigrationStrategy migrationStrategy = MappingMigrationStrategy.valueOf(strategyName)
-        def mappingConflicts = []
+        List<MappingConflict> mappingConflicts = []
 
         Set<String> indices = mappings
                 .findAll { it.isRoot() }
-                .collect { it.domainClass.fullName.toLowerCase() } as Set<String>
+                .collect { it.indexName } as Set<String>
 
         //Install the mappings for each index all together
         indices.each { String indexName ->
@@ -173,7 +173,7 @@ class SearchableClassMappingConfigurator implements ElasticSearchConfigAware {
                 }
             }
         }
-        if(mappingConflicts) {
+        if (mappingConflicts) {
             LOG.info("Applying migrations ...")
             mmm.applyMigrations(migrationStrategy, elasticMappings, mappingConflicts, indexSettings)
         }
