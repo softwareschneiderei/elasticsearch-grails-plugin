@@ -4,12 +4,12 @@ buildscript {
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsGradlePluginVersion"
-        classpath 'org.asciidoctor:asciidoctor-gradle-jvm:3.3.2'
-        classpath 'org.asciidoctor:asciidoctor-gradle-jvm-pdf:3.3.2'
-        classpath 'org.asciidoctor:asciidoctor-gradle-jvm-epub:3.3.2'
+        classpath "org.asciidoctor:asciidoctor-gradle-jvm:$asciidoctorVersion"
+        classpath "org.asciidoctor:asciidoctor-gradle-jvm-pdf:$asciidoctorVersion"
+        classpath "org.asciidoctor:asciidoctor-gradle-jvm-epub:$asciidoctorVersion"
         classpath 'org.ajoberstar:gradle-git:1.7.2'
         classpath "org.grails.plugins:hibernate5:${gormHibernateVersion-".RELEASE"}"
-        classpath "de.undercouch:gradle-download-task:5.4.0"
+        classpath "de.undercouch:gradle-download-task:5.6.0"
     }
 }
 
@@ -79,23 +79,27 @@ dependencies {
     api "org.elasticsearch:elasticsearch:${elasticsearchVersion}"
     api group: 'org.elasticsearch.client', name: 'elasticsearch-rest-client', version: elasticsearchVersion
     api group: 'org.elasticsearch.client', name: 'elasticsearch-rest-high-level-client', version: elasticsearchVersion
-    implementation group: 'org.locationtech.spatial4j', name: 'spatial4j', version: '0.8'
+    implementation 'org.locationtech.spatial4j:spatial4j:0.8'
 
     console "org.grails:grails-console"
 
     profile "org.grails.profiles:web-plugin"
 
-    testRuntimeOnly 'com.spatial4j:spatial4j:0.5'
     testRuntimeOnly 'org.apache.tomcat:tomcat-jdbc'
 
     testCompileOnly "org.grails:grails-web-testing-support"
-
-    testCompileOnly 'com.vividsolutions:jts:1.13'
+    testCompileOnly 'org.locationtech.jts:jts-core:1.20.0'
     testCompileOnly 'com.googlecode.json-simple:json-simple:1.1.1'
 
     testImplementation "org.grails:grails-gorm-testing-support"
     testImplementation "org.grails:grails-web-testing-support"
     testImplementation "org.spockframework:spock-core"
+
+    constraints {
+        add('implementation', 'com.fasterxml.jackson.core:jackson-databind:2.18.3') {
+            because '2.9.10.5 from spatial4j has vulnerabilities'
+        }
+    }
 }
 
 task cleanLibsDir(type: Delete) {
