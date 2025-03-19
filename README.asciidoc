@@ -26,7 +26,7 @@ In order to simply the versioning, with v3.0.0.M1 the Elasticsearch Grails plugi
 
 |4.0.0
 |5.3.x
-|7.11.2
+|7.15.2
 
 |3.0.0
 |4.0.x
