@@ -1,3 +1,5 @@
+import java.util.regex.Matcher
+
 buildscript {
     repositories {
         maven { url "https://repo.grails.org/grails/core" }
@@ -124,6 +126,22 @@ tasks.withType(Test) {
         exceptionFormat "full"
         showCauses true
         showStackTraces true
+    }
+}
+
+// Workaround for https://github.com/spring-gradle-plugins/dependency-management-plugin/issues/257
+tasks.withType(GenerateMavenPom).all {
+    doLast {
+        File file = new File("$buildDir/publications/maven/pom-default.xml")
+        def text = file.text
+        def pattern = "(?s)(<dependencyManagement>.+?<dependencies>)(.+?)(</dependencies>.+?</dependencyManagement>)"
+        Matcher matcher = text =~ pattern
+        if (matcher.find()) {
+            text = text.replaceFirst(pattern, "")
+            def firstDeps = matcher.group(2)
+            text = text.replaceFirst(pattern, '$1$2' + firstDeps + '$3')
+        }
+        file.write(text)
     }
 }
 
