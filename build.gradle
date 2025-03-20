@@ -78,7 +78,7 @@ dependencies {
     implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.24.3'
     implementation 'ch.qos.logback:logback-classic:1.5.18'
     implementation 'ch.qos.logback:logback-core:1.5.18'
-    implementation 'io.github.virtualdogbert:logback-groovy-config:1.12.5'
+    implementation 'io.github.virtualdogbert:logback-groovy-config:1.14.5'
 
     api "org.elasticsearch:elasticsearch:${elasticsearchVersion}"
     api group: 'org.elasticsearch.client', name: 'elasticsearch-rest-client', version: elasticsearchVersion
