@@ -99,9 +99,7 @@ class DomainClassUnmarshallerIntegrationSpec extends Specification implements El
 
         when: 'the color is unmarshalled'
         def results
-        withMockLogger {
-            results = unmarshaller.buildResults(searchHits)
-        }
+        results = unmarshaller.buildResults(searchHits)
         results.size() == 1
 
         then: 'this results in a color domain object'
@@ -129,9 +127,7 @@ class DomainClassUnmarshallerIntegrationSpec extends Specification implements El
 
         when: 'the circle is unmarshalled'
         def results
-        withMockLogger {
-            results = unmarshaller.buildResults(searchHits)
-        }
+        results = unmarshaller.buildResults(searchHits)
         results.size() == 1
 
         then: 'this results in a circle domain object with color'
@@ -143,31 +139,5 @@ class DomainClassUnmarshallerIntegrationSpec extends Specification implements El
         color.red == null
         color.green == null
         color.blue == null
-    }
-
-    private void withMockLogger(Closure closure) {
-        def logField = DomainClassUnmarshaller.class.getDeclaredField('LOG')
-        logField.setAccessible(true)
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(logField, logField.getModifiers() & ~Modifier.FINAL);
-
-        Logger origLog = logField.get(null)
-        Logger mockLog = Mock(Logger) {
-            debug(_ as String) >> { String s -> if (origLog.debugEnabled) println("DEBUG: $s") }
-            debug(_ as String, _ as Throwable) >> { String s, Throwable t ->
-                if (origLog.debugEnabled) {
-                    println("DEBUG: $s"); t.printStackTrace(System.out)
-                }
-            }
-            error(_ as String) >> { String s -> System.err.println("ERROR: $s") }
-            error(_ as String, _ as Throwable) >> { String s, Throwable t -> System.err.println("ERROR: $s"); t.printStackTrace() }
-        }
-        try {
-            logField.set(null, mockLog)
-            closure.call()
-        } finally {
-            logField.set(null, origLog)
-        }
     }
 }
