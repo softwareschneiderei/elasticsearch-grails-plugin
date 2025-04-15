@@ -154,14 +154,9 @@ bootJar.enabled = false
 
 apply from: "gradle/documentation.gradle"
 
-grails {
-    pathingJar = true
-}
-
 tasks.withType(Test) {
     useJUnitPlatform()
 }
-
 
 publishing {
     publications {
