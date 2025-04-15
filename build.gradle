@@ -16,6 +16,8 @@ buildscript {
 
 group "org.grails.plugins"
 
+version = projectVersion
+
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: "org.grails.grails-plugin"
