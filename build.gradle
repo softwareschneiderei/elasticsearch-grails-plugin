@@ -100,7 +100,7 @@ dependencies {
     testImplementation "org.spockframework:spock-core"
 
     constraints {
-        add('implementation', 'com.fasterxml.jackson.core:jackson-databind:2.18.3') {
+        add('implementation', 'com.fasterxml.jackson.core:jackson-databind:2.20.0') {
             because '2.9.10.5 from spatial4j has vulnerabilities'
         }
     }
