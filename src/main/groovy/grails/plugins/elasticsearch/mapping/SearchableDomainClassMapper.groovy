@@ -276,7 +276,7 @@ class SearchableDomainClassMapper extends GroovyObjectSupport {
         return null
     }
 
-    private Set<String> convertToSet(arg) {
+    private static Set<String> convertToSet(arg) {
         if (arg == null) {
             return Collections.emptySet()
         }
@@ -287,7 +287,6 @@ class SearchableDomainClassMapper extends GroovyObjectSupport {
             return new HashSet<String>(Arrays.asList(arg as String[]))
         }
         if (arg instanceof Collection) {
-            //noinspection unchecked
             return new HashSet<String>(arg as Collection<String>)
         }
         throw new IllegalArgumentException("Unknown argument: $arg")

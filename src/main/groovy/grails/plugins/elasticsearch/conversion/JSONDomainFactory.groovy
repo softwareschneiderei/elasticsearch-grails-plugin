@@ -23,7 +23,9 @@ import grails.plugins.elasticsearch.mapping.DomainEntity
 import grails.plugins.elasticsearch.mapping.DomainReflectionService
 import grails.plugins.elasticsearch.mapping.SearchableClassMapping
 import grails.plugins.elasticsearch.unwrap.DomainClassUnWrapperChain
+import grails.plugins.elasticsearch.util.ElasticSearchConfigAware
 import org.elasticsearch.common.xcontent.XContentBuilder
+import org.grails.orm.hibernate.cfg.GrailsHibernateUtil
 
 import java.beans.PropertyEditor
 import java.sql.Timestamp
@@ -33,7 +35,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder
 /**
  * Marshall objects as JSON.
  */
-class JSONDomainFactory {
+class JSONDomainFactory implements ElasticSearchConfigAware {
 
     ElasticSearchContextHolder elasticSearchContextHolder
     GrailsApplication grailsApplication
@@ -181,6 +183,9 @@ class JSONDomainFactory {
     }
 
     DomainEntity getInstanceDomainClass(Object instance) {
+        if (hibernateDataStoreConfigured()) {
+            instance = GrailsHibernateUtil.unwrapIfProxy(instance)
+        }
         domainReflectionService.getDomainEntity(instance.class)
     }
 

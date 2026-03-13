@@ -1,5 +1,7 @@
 package grails.plugins.elasticsearch.unwrap
 
+import org.grails.orm.hibernate.cfg.GrailsHibernateUtil
+
 /**
  * @author Noam Y. Tenne.
  */
@@ -7,6 +9,6 @@ class HibernateProxyUnWrapper implements DomainClassUnWrapper {
 
     @Override
     def unWrap(Object object) {
-        return org.grails.orm.hibernate.cfg.GrailsHibernateUtil.unwrapIfProxy(object)
+        return GrailsHibernateUtil.unwrapIfProxy(object)
     }
 }
