@@ -20,11 +20,11 @@ group "org.grails.plugins"
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: "org.grails.grails-plugin"
-//apply plugin: "org.grails.internal.grails-plugin-publish"
+apply plugin: "org.grails.internal.grails-plugin-publish"
 apply plugin: "org.grails.grails-gsp"
 apply plugin: "de.undercouch.download"
 apply plugin: "java-library"
-apply plugin: "maven-publish"
+//apply plugin: "maven-publish"
 
 java {
     sourceCompatibility = JavaVersion.toVersion("11")
