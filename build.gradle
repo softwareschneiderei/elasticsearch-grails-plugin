@@ -146,67 +146,21 @@ tasks.withType(Test) {
     useJUnitPlatform()
 }
 
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            pom {
-                name = "Elasticsearch Grails Plugin"
-                description = "An Elasticsearch plugin for Grails"
-
-                licenses {
-                    license {
-                        name = "The Apache License, Version 2.0"
-                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
-                    }
-                }
-                developers {
-                    developer {
-                        id = "puneet"
-                        name = 'Puneet Behl'
-                    }
-                    developer {
-                        id = "noam"
-                        name = 'Noam Y. Tenne'
-                    }
-                    developer {
-                        id = "macrcos"
-                        name = 'Marcos Carceles'
-                    }
-                    developer {
-                        id = "james"
-                        name = 'James Kleeh'
-                    }
-                    developer {
-                        id = "cgoit"
-                        name ='Carsten Götzinger'
-                    }
-                    developer {
-                        id = "miq"
-                        name = 'Mihael Koep'
-                        email = 'mihael.koep@softwareschneiderei.de'
-                    }
-                }
-            }
-
-            versionMapping {
-                usage('java-api') {
-                    fromResolutionOf('runtimeClasspath')
-                }
-                usage('java-runtime') {
-                    fromResolutionResult()
-                }
-            }
-            from components.java
-            repositories {
-                maven {
-                    credentials {
-                        username "$mavenUser"
-                        password "$mavenPassword"
-                    }
-                    url "$mavenUrl"
-                }
-            }
-        }
+grailsPublish {
+    githubSlug = 'grails-plugins/grails-elasticsearch'
+    license {
+        name = 'Apache-2.0'
     }
+    title = "Elasticsearch Grails Plugin"
+    //rep = "grails-plugins"
+    desc = "An Elasticsearch plugin for Grails"
+    developers = [
+            noam: 'Noam Y. Tenne',
+            macrcos: 'Marcos Carceles',
+            puneet: 'Puneet Behl',
+            james: 'James Kleeh',
+            cgoit: 'Carsten Götzinger',
+            miq: 'Mihael Koep'
+    ]
+
 }
