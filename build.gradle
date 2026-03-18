@@ -118,6 +118,7 @@ task cleanDataDir(type: Delete) {
 }
 
 tasks.withType(Test) {
+    onlyIf { !project.hasProperty('skipTests') }
     useJUnitPlatform()
     afterTest { desc, result ->
         logger.quiet " -- Executed test ${desc.name} [${desc.className}] with result: ${result.resultType}"
