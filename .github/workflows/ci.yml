@@ -53,11 +53,26 @@ jobs:
             -p 9200:9200 -p 9300:9300 \
             -e "discovery.type=single-node" \
             -e "xpack.security.enabled=false" \
-            -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
+            -e "ES_JAVA_OPTS=-Xms1g -Xmx1g" \
             docker.elastic.co/elasticsearch/elasticsearch:7.15.2
-          timeout 120 bash -c 'until curl -s http://localhost:9200/_cluster/health; do sleep 2; done'
-          echo ""
-          echo "Elasticsearch is ready"
+          echo "Waiting for Elasticsearch to start..."
+          for i in $(seq 1 90); do
+            if curl -s http://localhost:9200/_cluster/health > /dev/null 2>&1; then
+              echo ""
+              curl -s http://localhost:9200/_cluster/health
+              echo ""
+              echo "Elasticsearch is ready (after ~${i}x2s)"
+              exit 0
+            fi
+            if [ $((i % 15)) -eq 0 ]; then
+              echo "Still waiting... (${i}x2s elapsed)"
+              docker logs --tail 5 elasticsearch 2>&1 || true
+            fi
+            sleep 2
+          done
+          echo "Elasticsearch failed to start within 180s"
+          docker logs elasticsearch 2>&1 || true
+          exit 1
 
       - name: "🔨 Build project without tests"
         if: ${{ contains(github.event.head_commit.message, '[skip tests]') }}
