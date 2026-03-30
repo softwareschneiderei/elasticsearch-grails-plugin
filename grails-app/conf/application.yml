@@ -149,7 +149,6 @@ environments:
                 password:
             datastoreImpl: hibernateDatastore
             index:
-                store.type: simplefs
                 settings:
                     analysis:
                         filter:

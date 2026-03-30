@@ -1,6 +1,7 @@
 package grails.plugins.elasticsearch.mapping
 
 import grails.core.GrailsApplication
+import grails.plugins.elasticsearch.ElasticSearchAdminService
 import grails.plugins.elasticsearch.ElasticSearchContextHolder
 import grails.testing.mixin.integration.Integration
 import org.springframework.beans.factory.annotation.Autowired
@@ -22,13 +23,16 @@ class ElasticSearchMappingFactorySpec extends Specification {
     @Autowired GrailsApplication grailsApplication
     @Autowired SearchableClassMappingConfigurator searchableClassMappingConfigurator
     @Autowired ElasticSearchContextHolder elasticSearchContextHolder
+    @Autowired ElasticSearchAdminService elasticSearchAdminService
 
     void setup() {
+        elasticSearchAdminService.deleteIndex()
         grailsApplication.config.elasticSearch.includeTransients = true
         searchableClassMappingConfigurator.configureAndInstallMappings()
     }
 
     void cleanup() {
+        elasticSearchAdminService.deleteIndex()
         grailsApplication.config.elasticSearch.includeTransients = false
         searchableClassMappingConfigurator.configureAndInstallMappings()
     }
