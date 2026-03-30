@@ -13,7 +13,7 @@ concurrency:
 jobs:
   build:
     name: "Build & Test"
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04  # ES 7.15.2's bundled JDK requires cgroups v1 (ubuntu-24.04 defaults to v2)
     steps:
       - name: "Output Agent IP"
         run: curl -s https://api.ipify.org
@@ -93,7 +93,7 @@ jobs:
   publish:
     if: github.repository_owner == 'grails-plugins' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     needs: [ build ]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04  # ES 7.15.2's bundled JDK requires cgroups v1 (ubuntu-24.04 defaults to v2)
     steps:
       - name: "Output Agent IP"
         run: curl -s https://api.ipify.org
