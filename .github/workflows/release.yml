@@ -1,76 +1,209 @@
-name: Release
+name: "Release"
 on:
   release:
-    types: [published]
+    types: [ published ]
+permissions: { }
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GRAILS_PUBLISH_RELEASE: 'true'
+  JAVA_DISTRIBUTION: 'liberica'
+  REPO_NAME: ${{ github.event.repository.name }}
+  TAG: ${{ github.event.release.tag_name }}
+  VERSION: 'will be computed in each job'
+concurrency:
+  group: release-pipeline
+  cancel-in-progress: false
 jobs:
-  release:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java: ['8']
-    env:
-      GIT_USER_NAME: grails-build
-      GIT_USER_EMAIL: grails-build@users.noreply.github.com
+  publish:
+    name: "Stage Jar Files"
+    permissions:
+      packages: read
+      contents: write
+      issues: write
+    runs-on: ubuntu-24.04
     steps:
-      - name: Checkout repository
+      - name: "📝 Establish release version"
+        run: echo "VERSION=${TAG#v}" >> "$GITHUB_ENV"
+
+      - name: "Output Agent IP"
+        run: curl -s https://api.ipify.org
+
+      - name: "📥 Checkout repository"
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GH_TOKEN }}
-      - uses: gradle/wrapper-validation-action@v1
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'adopt'
-          java-version: ${{ matrix.java }}
-      - name: Set the current release version
-        id: release_version
-        run: echo ::set-output name=release_version::${GITHUB_REF:11}
-      - name: Run pre-release
-        uses: grails/github-actions/pre-release@main
-        with:
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Generate secring file
+          ref: ${{ env.TAG }}
+
+      - name: "Export .sdkmanrc properties"
+        uses: apache/grails-github-actions/export-gradle-properties@asf
+        with:
+          file: ".sdkmanrc"
+          prefix: "SDKMANRC_"
+
+      - name: "Determine Java Version"
+        run: echo "SDKMANRC_java=${{ env.SDKMANRC_java }}" | sed 's/-.*//' >> $GITHUB_ENV
+
+      - name: "☕️ Setup JDK"
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.SDKMANRC_java }}
+
+      - name: "🐘 Setup Gradle"
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: "⚙️ Run pre-release"
+        uses: apache/grails-github-actions/pre-release@asf
+        env:
+          RELEASE_VERSION: ${{ env.VERSION }}
+
+      - name: "🔐 Generate key file for artifact signing"
         env:
           SECRING_FILE: ${{ secrets.SECRING_FILE }}
         run: echo $SECRING_FILE | base64 -d > ${{ github.workspace }}/secring.gpg
-      - name: Publish to Sonatype OSSRH
-        id: publish
-        uses: gradle/gradle-build-action@v2
+
+      - name: "📤 Publish to Maven Central"
         env:
-          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          SONATYPE_NEXUS_URL: ${{ secrets.SONATYPE_NEXUS_URL }}
-          SONATYPE_STAGING_PROFILE_ID: ${{ secrets.SONATYPE_STAGING_PROFILE_ID }}
+          NEXUS_PUBLISH_USERNAME: ${{ secrets.NEXUS_PUBLISH_USERNAME }}
+          NEXUS_PUBLISH_PASSWORD: ${{ secrets.NEXUS_PUBLISH_PASSWORD }}
+          NEXUS_PUBLISH_URL: 'https://ossrh-staging-api.central.sonatype.com/service/local/'
+          NEXUS_PUBLISH_DESCRIPTION: '${{ env.REPO_NAME }}:${{ env.VERSION }}'
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-          SIGNING_PASSPHRASE: ${{ secrets.SIGNING_PASSPHRASE }}
-          SECRING_FILE: ${{ secrets.SECRING_FILE }}
-        with:
-          arguments: -Psigning.secretKeyRingFile=${{ github.workspace }}/secring.gpg publishToSonatype closeAndReleaseSonatypeStagingRepository
-      - name: Publish Documentation
-        id: docs
-        if: steps.publish.outcome == 'success'
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: docs
-      - name: Export Gradle Properties
-        uses: grails/github-actions/export-gradle-properties@main
-      - name: Publish to Github Pages
-        if: steps.docs.outcome == 'success'
-        uses: ./.github/actions/github-pages-deploy-action
-        env:
-          BETA: ${{ contains(steps.release_version.outputs.release_version, 'M') || contains(steps.release_version.outputs.release_version, 'RC') }}
-          TARGET_REPOSITORY: ${{ github.repository }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: build/docs/manual
-          DOC_FOLDER: gh-pages
-          COMMIT_EMAIL: behlp@objectcomputing.com
-          COMMIT_NAME: Puneet Behl
-          VERSION: ${{ steps.release_version.outputs.release_version }}
-      - name: Run post-release
-        if: success()
-        uses: grails/github-actions/post-release@main
+          SIGNING_PASSPHRASE: ${{ secrets.SECRING_PASSPHRASE }}
+        run: >
+          ./gradlew
+          -Psigning.secretKeyRingFile=${{ github.workspace }}/secring.gpg
+          publishMavenPublicationToSonatypeRepository
+          closeSonatypeStagingRepository
+
+  release:
+    name: "Make Release Files Available"
+    environment: release
+    needs: [ publish ]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: "📝 Establish release version"
+        run: echo "VERSION=${TAG#v}" >> "$GITHUB_ENV"
+
+      - name: "📥 Checkout repository"
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ env.TAG }}
+
+      - name: "Export .sdkmanrc properties"
+        uses: apache/grails-github-actions/export-gradle-properties@asf
+        with:
+          file: ".sdkmanrc"
+          prefix: "SDKMANRC_"
+
+      - name: "Determine Java Version"
+        run: echo "SDKMANRC_java=${{ env.SDKMANRC_java }}" | sed 's/-.*//' >> $GITHUB_ENV
+
+      - name: "☕️ Setup JDK"
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.SDKMANRC_java }}
+
+      - name: "🐘 Setup Gradle"
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: "📤 Release staging repository"
         env:
-          SNAPSHOT_SUFFIX: -SNAPSHOT
+          NEXUS_PUBLISH_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          NEXUS_PUBLISH_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+          NEXUS_PUBLISH_URL: 'https://ossrh-staging-api.central.sonatype.com/service/local/'
+          NEXUS_PUBLISH_DESCRIPTION: '${{ env.REPO_NAME }}:${{ env.VERSION }}'
+        run: >
+          ./gradlew
+          findSonatypeStagingRepository
+          releaseSonatypeStagingRepository
+
+  docs:
+    environment: docs
+    name: "Publish Documentation"
+    needs: [ publish, release ]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: "📝 Establish release version"
+        run: echo "VERSION=${TAG#v}" >> "$GITHUB_ENV"
+
+      - name: "📥 Checkout repository"
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ env.TAG }}
+
+      - name: "Export .sdkmanrc properties"
+        uses: apache/grails-github-actions/export-gradle-properties@asf
+        with:
+          file: ".sdkmanrc"
+          prefix: "SDKMANRC_"
+
+      - name: "Determine Java Version"
+        run: echo "SDKMANRC_java=${{ env.SDKMANRC_java }}" | sed 's/-.*//' >> $GITHUB_ENV
+
+      - name: "☕️ Setup JDK"
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.SDKMANRC_java }}
+
+      - name: "🐘 Setup Gradle"
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: "🔨 Build Documentation"
+        run: ./gradlew docs
+
+      - name: "🚀 Publish to Github Pages"
+        uses: apache/grails-github-actions/deploy-github-pages@asf
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GRADLE_PUBLISH_RELEASE: 'true'
+          SOURCE_FOLDER: build/docs
+          VERSION: ${{ env.VERSION }}
+
+  close:
+    name: "To Next Version"
+    environment: close
+    needs: [ publish, docs, release ]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - name: "📝 Establish release version"
+        run: echo "VERSION=${TAG#v}" >> "$GITHUB_ENV"
+
+      - name: "📥 Checkout repository"
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ env.TAG }}
+
+      - name: "Export .sdkmanrc properties"
+        uses: apache/grails-github-actions/export-gradle-properties@asf
+        with:
+          file: ".sdkmanrc"
+          prefix: "SDKMANRC_"
+
+      - name: "Determine Java Version"
+        run: echo "SDKMANRC_java=${{ env.SDKMANRC_java }}" | sed 's/-.*//' >> $GITHUB_ENV
+
+      - name: "☕️ Setup JDK"
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.SDKMANRC_java }}
+
+      - name: "🐘 Setup Gradle"
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: "⚙️ Run post-release"
+        uses: apache/grails-github-actions/post-release@asf

@@ -1,0 +1,141 @@
+name: "CI"
+on:
+  push:
+    branches:
+      - '[0-9]+.[0-9]+.x'
+  pull_request:
+  workflow_dispatch:
+env:
+  JAVA_DISTRIBUTION: 'liberica'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  build:
+    name: "Build & Test"
+    runs-on: ubuntu-22.04  # ES 7.15.2's bundled JDK requires cgroups v1 (ubuntu-24.04 defaults to v2)
+    steps:
+      - name: "Output Agent IP"
+        run: curl -s https://api.ipify.org
+
+      - name: "📥 Checkout repository"
+        uses: actions/checkout@v4
+
+      - name: "Export .sdkmanrc properties"
+        uses: apache/grails-github-actions/export-gradle-properties@asf
+        with:
+          file: ".sdkmanrc"
+          prefix: "SDKMANRC_"
+
+      - name: "Determine Java Version"
+        run: echo "SDKMANRC_java=${{ env.SDKMANRC_java }}" | sed 's/-.*//' >> $GITHUB_ENV
+
+      - name: "☕️ Setup JDK"
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.SDKMANRC_java }}
+
+      - name: "🐘 Setup Gradle"
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: "Configure sysctl limits"
+        run: |
+          sudo swapoff -a
+          sudo sysctl -w vm.swappiness=1
+          sudo sysctl -w fs.file-max=262144
+          sudo sysctl -w vm.max_map_count=262144
+
+      - name: "🔍 Start Elasticsearch"
+        if: ${{ !contains(github.event.head_commit.message, '[skip tests]') }}
+        run: |
+          docker run -d --name elasticsearch \
+            -p 9200:9200 -p 9300:9300 \
+            -e "discovery.type=single-node" \
+            -e "xpack.security.enabled=false" \
+            -e "ES_JAVA_OPTS=-Xms1g -Xmx1g" \
+            docker.elastic.co/elasticsearch/elasticsearch:7.15.2
+          echo "Waiting for Elasticsearch to start..."
+          for i in $(seq 1 90); do
+            if curl -s http://localhost:9200/_cluster/health > /dev/null 2>&1; then
+              echo ""
+              curl -s http://localhost:9200/_cluster/health
+              echo ""
+              echo "Elasticsearch is ready (after ~${i}x2s)"
+              exit 0
+            fi
+            if [ $((i % 15)) -eq 0 ]; then
+              echo "Still waiting... (${i}x2s elapsed)"
+              docker logs --tail 5 elasticsearch 2>&1 || true
+            fi
+            sleep 2
+          done
+          echo "Elasticsearch failed to start within 180s"
+          docker logs elasticsearch 2>&1 || true
+          exit 1
+
+      - name: "🔨 Build project without tests"
+        if: ${{ contains(github.event.head_commit.message, '[skip tests]') }}
+        run: >
+          ./gradlew build
+          --continue
+          --stacktrace
+          -PskipTests
+
+      - name: "🔨 Build project with tests"
+        if: ${{ !contains(github.event.head_commit.message, '[skip tests]') }}
+        run: >
+          ./gradlew build
+          --continue
+          --stacktrace
+          --rerun-tasks
+
+  publish:
+    if: github.repository_owner == 'grails-plugins' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [ build ]
+    runs-on: ubuntu-22.04  # ES 7.15.2's bundled JDK requires cgroups v1 (ubuntu-24.04 defaults to v2)
+    steps:
+      - name: "Output Agent IP"
+        run: curl -s https://api.ipify.org
+
+      - name: "📥 Checkout repository"
+        uses: actions/checkout@v4
+
+      - name: "Export .sdkmanrc properties"
+        uses: apache/grails-github-actions/export-gradle-properties@asf
+        with:
+          file: ".sdkmanrc"
+          prefix: "SDKMANRC_"
+
+      - name: "Determine Java Version"
+        run: echo "SDKMANRC_java=${{ env.SDKMANRC_java }}" | sed 's/-.*//' >> $GITHUB_ENV
+
+      - name: "☕️ Setup JDK"
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.SDKMANRC_java }}
+
+      - name: "🐘 Setup Gradle"
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: "📤 Publish Gradle Snapshot Artifacts"
+        env:
+          MAVEN_PUBLISH_URL: 'https://central.sonatype.com/repository/maven-snapshots/'
+          MAVEN_PUBLISH_USERNAME: ${{ secrets.NEXUS_PUBLISH_USERNAME }}
+          MAVEN_PUBLISH_PASSWORD: ${{ secrets.NEXUS_PUBLISH_PASSWORD }}
+        run: >
+          ./gradlew publish
+          --no-build-cache
+          --rerun-tasks
+
+      - name: "📜 Generate Documentation"
+        if: success()
+        run: ./gradlew docs
+
+      - name: "🚀 Publish to Github Pages"
+        if: success()
+        uses: apache/grails-github-actions/deploy-github-pages@asf
+        env:
+          GRADLE_PUBLISH_RELEASE: 'false'
+          SOURCE_FOLDER: build/docs

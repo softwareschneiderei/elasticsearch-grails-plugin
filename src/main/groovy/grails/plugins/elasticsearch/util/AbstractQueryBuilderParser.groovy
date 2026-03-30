@@ -40,7 +40,7 @@ class AbstractQueryBuilderParser {
 
         QueryBuilder result
         try {
-            result = parser.namedObject(QueryBuilder, queryName, parser)
+            result = parser.namedObject(QueryBuilder, queryName, 0)
         } catch (NamedObjectNotFoundException e) {
             throw new ParsingException(new XContentLocation(e.lineNumber, e.columnNumber), e.toString())
         }
