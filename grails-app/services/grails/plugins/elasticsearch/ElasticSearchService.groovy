@@ -28,12 +28,6 @@ import org.elasticsearch.action.search.SearchResponse
 import org.elasticsearch.client.RequestOptions
 import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.common.settings.Settings
-import org.elasticsearch.common.xcontent.DeprecationHandler
-import org.elasticsearch.common.xcontent.NamedXContentRegistry
-import org.elasticsearch.common.xcontent.XContent
-import org.elasticsearch.common.xcontent.XContentLocation
-import org.elasticsearch.common.xcontent.XContentParser
-import org.elasticsearch.common.xcontent.json.JsonXContent
 import org.elasticsearch.index.query.Operator
 import org.elasticsearch.index.query.QueryBuilder
 import org.elasticsearch.index.query.QueryStringQueryBuilder
@@ -48,6 +42,12 @@ import org.elasticsearch.search.builder.SearchSourceBuilder
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder
 import org.elasticsearch.search.sort.SortBuilder
 import org.elasticsearch.search.sort.SortOrder
+import org.elasticsearch.xcontent.DeprecationHandler
+import org.elasticsearch.xcontent.NamedXContentRegistry
+import org.elasticsearch.xcontent.XContent
+import org.elasticsearch.xcontent.XContentLocation
+import org.elasticsearch.xcontent.XContentParser
+import org.elasticsearch.xcontent.json.JsonXContent
 
 import java.util.function.Supplier
 

@@ -23,12 +23,12 @@ import grails.plugins.elasticsearch.mapping.DomainEntity
 import grails.plugins.elasticsearch.mapping.DomainReflectionService
 import grails.plugins.elasticsearch.mapping.SearchableClassMapping
 import grails.plugins.elasticsearch.unwrap.DomainClassUnWrapperChain
-import org.elasticsearch.common.xcontent.XContentBuilder
+import org.elasticsearch.xcontent.XContentBuilder
 
 import java.beans.PropertyEditor
 import java.sql.Timestamp
 
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder
+import static org.elasticsearch.xcontent.XContentFactory.jsonBuilder
 
 /**
  * Marshall objects as JSON.
