@@ -1,10 +1,9 @@
 package org.grails.plugins.elasticsearch
 
 import grails.plugins.elasticsearch.AuditEventListener
-import spock.lang.Ignore
+import grails.plugins.elasticsearch.ElasticSearchContextHolder
 import spock.lang.Specification
 
-@Ignore
 class AuditEventListenerRootIndexSpec extends Specification {
 
     AuditEventListener listener = new AuditEventListener(null)
