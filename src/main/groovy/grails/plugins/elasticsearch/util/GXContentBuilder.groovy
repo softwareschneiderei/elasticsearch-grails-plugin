@@ -20,7 +20,6 @@
 package grails.plugins.elasticsearch.util
 
 import org.elasticsearch.common.bytes.BytesReference
-import org.elasticsearch.xcontent.XContent
 import org.elasticsearch.xcontent.XContentBuilder
 import org.elasticsearch.xcontent.XContentFactory
 import org.elasticsearch.xcontent.XContentType
@@ -47,7 +46,7 @@ class GXContentBuilder extends GroovyObjectSupport {
     }
 
     String buildAsString(Closure c) {
-        XContent builder = XContentFactory.contentBuilder(XContentType.JSON)
+        XContentBuilder builder = XContentFactory.contentBuilder(XContentType.JSON)
         def json = build(c)
         builder.map(json)
         return builder.string()
