@@ -2,9 +2,9 @@ package grails.plugins.elasticsearch.util
 
 import groovy.transform.CompileStatic
 import org.elasticsearch.common.ParsingException
-import org.elasticsearch.common.xcontent.NamedObjectNotFoundException
-import org.elasticsearch.common.xcontent.XContentLocation
-import org.elasticsearch.common.xcontent.XContentParser
+import org.elasticsearch.xcontent.NamedObjectNotFoundException
+import org.elasticsearch.xcontent.XContentLocation
+import org.elasticsearch.xcontent.XContentParser
 import org.elasticsearch.index.query.QueryBuilder
 
 /**
