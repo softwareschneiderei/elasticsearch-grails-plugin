@@ -181,17 +181,64 @@ publishing {
                 }
             }
 
-            // Fix POM issues caused by Spring dependency management plugin
             pom.withXml {
                 def root = asNode()
-                // Remove duplicate dependencyManagement elements
+
+                // --- keep your existing "remove duplicate dependencyManagement" fix ---
                 def depMgmts = root.getAt('dependencyManagement')
                 while (depMgmts.size() > 1) {
                     root.remove(depMgmts.last())
                     depMgmts = root.getAt('dependencyManagement')
                 }
+
+                // --- NEW: inject missing dependency versions (Central requirement) ---
+                // Build a map of "group:artifact" -> resolvedVersion from Gradle
+                def resolved = [:]
+
+                // Prefer runtimeClasspath; fall back to compileClasspath
+                def cfgNames = ['runtimeClasspath', 'compileClasspath']
+                cfgNames.each { cfgName ->
+                    def cfg = configurations.findByName(cfgName)
+                    if (cfg == null) return
+
+                    // Force resolution and collect first-seen versions
+                    cfg.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
+                        collectResolved(dep, resolved)
+                    }
+                }
+
+                // Update the POM dependencies
+                def depsNode = root.get('dependencies')?.getAt(0)
+                if (depsNode != null) {
+                    depsNode.get('dependency').each { d ->
+                        def g = d.get('groupId')?.text()
+                        def a = d.get('artifactId')?.text()
+
+                        if (!g || !a) return
+
+                        def hasVersion = d.get('version') && d.get('version')?.text()
+                        if (!hasVersion) {
+                            def key = "${g}:${a}"
+                            def v = resolved[key]
+                            if (v) {
+                                d.appendNode('version', v)
+                            }
+                        }
+                    }
+                }
             }
         }
+    }
+}
+
+// Helper to walk the resolved dependency graph
+def collectResolved(dep, Map resolved) {
+    def key = "${dep.moduleGroup}:${dep.moduleName}"
+    if (!resolved.containsKey(key) && dep.moduleVersion) {
+        resolved[key] = dep.moduleVersion
+    }
+    dep.children?.each { child ->
+        collectResolved(child, resolved)
     }
 }
 
