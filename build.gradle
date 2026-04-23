@@ -82,7 +82,7 @@ dependencies {
     api "org.elasticsearch.client:elasticsearch-rest-client:${elasticsearchVersion}"
     api "org.elasticsearch.client:elasticsearch-rest-high-level-client:${elasticsearchVersion}"
     api "org.elasticsearch:elasticsearch-x-content:${elasticsearchVersion}"
-    implementation "org.mongodb:mongodb-driver:3.9.1"
+    implementation "org.mongodb:mongodb-driver:3.12.14"
     implementation 'org.locationtech.spatial4j:spatial4j:0.8'
 
     console "org.grails:grails-console"
