@@ -91,7 +91,7 @@ environments:
       client:
         mode: local
         hosts:
-          - {host: 127.0.0.1, port: 9200}
+          - {host: localhost, port: 9200}
         transport.sniff: false
         username:
         password:
