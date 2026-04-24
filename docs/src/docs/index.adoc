@@ -1,4 +1,4 @@
-:includesdir: src/docs
+:includesdir: .
 :sectanchors:
 
 = Elasticsearch Plugin - Reference Documentation
