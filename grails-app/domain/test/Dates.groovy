@@ -1,11 +1,6 @@
 package test
 
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import java.time.OffsetTime
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.time.*
 
 class Dates {
 

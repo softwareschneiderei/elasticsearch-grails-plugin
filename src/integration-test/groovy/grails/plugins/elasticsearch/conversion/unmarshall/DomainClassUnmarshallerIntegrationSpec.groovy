@@ -98,10 +98,7 @@ class DomainClassUnmarshallerIntegrationSpec extends Specification implements El
         GroovySpy(MappingException, global: true)
 
         when: 'the color is unmarshalled'
-        def results
-        withMockLogger {
-            results = unmarshaller.buildResults(searchHits)
-        }
+        def results = unmarshaller.buildResults(searchHits)
         results.size() == 1
 
         then: 'this results in a color domain object'
@@ -128,10 +125,7 @@ class DomainClassUnmarshallerIntegrationSpec extends Specification implements El
         GroovySpy(MappingException, global: true)
 
         when: 'the circle is unmarshalled'
-        def results
-        withMockLogger {
-            results = unmarshaller.buildResults(searchHits)
-        }
+        def results = unmarshaller.buildResults(searchHits)
         results.size() == 1
 
         then: 'this results in a circle domain object with color'

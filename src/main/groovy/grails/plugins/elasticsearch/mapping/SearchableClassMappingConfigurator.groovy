@@ -121,7 +121,7 @@ class SearchableClassMappingConfigurator implements ElasticSearchConfigAware {
             Map<String, Map> esMappings = indexMappings.collectEntries { [(it.elasticTypeName) : elasticMappings[it]] }
 
             //If the index does not exist we attempt to create all the mappings at once with it
-            if(!es.indexExists(indexName)) {
+            if (!es.indexExists(indexName)) {
                 try {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Creating index [" + indexName + "] => with new mappings:")

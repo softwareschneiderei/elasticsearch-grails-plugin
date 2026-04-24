@@ -166,7 +166,7 @@ class SearchableClassPropertyMapping {
                 throw new IllegalArgumentException("$parentClassName property '$propertyName' declared as reference to non-searchable class $myReferenceType")
             }
             // Should it be a root class????
-            if (!scm.root) {
+            if (!scm.isRoot()) {
                 throw new IllegalArgumentException("$parentClassName property '$propertyName' declared as reference to non-root class $myReferenceType")
             }
         }

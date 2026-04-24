@@ -1,11 +1,12 @@
 package grails.plugins.elasticsearch
 
+import grails.plugins.elasticsearch.ElasticSearchContextHolder
+import grails.plugins.elasticsearch.ElasticSearchHelper
 import grails.plugins.elasticsearch.index.IndexRequestQueue
 import grails.plugins.elasticsearch.mapping.SearchableClassMapping
 import groovy.json.JsonSlurper
 import org.apache.http.util.EntityUtils
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequestBuilder
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest
