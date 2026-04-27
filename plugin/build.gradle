@@ -90,11 +90,31 @@ extensions.configure(org.apache.grails.gradle.publish.GrailsPublishExtension) {
         it.url = 'https://github.com/grails-plugins'
     }
     it.developers = [
-        noam:  'Noam Y. Tenne',
-        marcos: 'Marcos Carceles',
-        puneet: 'Puneet Behl',
-        james: 'James Kleeh',
-        cgoit: 'Carsten Götzinger',
-        miq: 'Mihael Koep'
+            puneetbehl: "Puneet Behl",
+            noamt: "Noam Y. Tenne",
+            mstein: "Manuarii Stein",
+            marcoscarceles: "Marcos Carceles",
+            cgoIT: "cgoIT",
+            tcrossland: "Tom Crossland",
+            miq : "Mihael Koep",
+            donbeave: "Alexey Zhokhov",
+            jamesfredley: "James Fredley",
+            sbglasius: "Søren Berg Glasius",
+            'ruslan-khalitov': "Ruslan Khalitov",
+            spither: "Simon Pither",
+            occurred: "Charlie Schaubmair",
+            jameskleeh: "James Kleeh",
+            kaerfredoc: "Tyler",
+            nmfisher: "Nick Fisher",
+            peh : "Philipp Eschenbach",
+            verglor: "verglor",
+            burtbeckwith: "Burt Beckwith",
+            domix: "Domingo Suarez Torres",
+            magno32: "Justin Smith",
+            sgates: "Steffen Gates",
+            smaldini: "Stephane Maldini",
+            alvarosanchez: "Álvaro Sánchez-Mariscal",
+            'm-r-c': "Mark Chambers",
+            perdacherMartin: "Perdacher Martin",
     ]
 }
