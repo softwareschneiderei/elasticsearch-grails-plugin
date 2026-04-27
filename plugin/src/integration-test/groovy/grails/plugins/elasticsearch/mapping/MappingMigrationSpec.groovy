@@ -47,8 +47,6 @@ class MappingMigrationSpec extends Specification {
      * case 1: Nothing exists
      * case 2: Conflict
      */
-    //TODO: Commented in 2.7.1
-    @Ignore
     void "An index is created when nothing exists"() {
         given: "That an index does not exist"
         setupMappings()
@@ -75,8 +73,6 @@ class MappingMigrationSpec extends Specification {
 
     }
 
-    //TODO: Commented in 2.7.1
-    @Ignore
     void "Read and Write aliases are created when none exist"() {
         given: "An index without read and write aliases"
         setupMappings()
@@ -128,8 +124,6 @@ class MappingMigrationSpec extends Specification {
      * STRATEGY : delete
      * Depreceated, throws Exception now
      */
-    //TODO: Commented in 2.7.1
-    @Ignore
     void "when there is a conflict and strategy is 'delete' an exception is thrown"() {
         given: "A Conflicting Catalog mapping (with nested as opposed to inner pages)"
         setupMappings()
@@ -190,9 +184,9 @@ class MappingMigrationSpec extends Specification {
         and:
         es.indexPointedBy(catalogMapping.queryingIndex) == catalogMapping.indexName
         Catalog.count() == 2
-        Catalog.search("ACME").total == 2
+        Catalog.search("ACME").total.value == 2
         Item.count() == 1
-        Item.search("Spring").total == 1
+        Item.search("Spring").total.value == 1
 
         when: "Installing the conflicting mapping"
         searchableClassMappingConfigurator.installMappings([catalogMapping])
@@ -209,11 +203,11 @@ class MappingMigrationSpec extends Specification {
 
         and: "Documents are lost on ES"
         Catalog.count() == 2
-        Catalog.search("ACME").total == 0
+        Catalog.search("ACME").total.value == 0
 
         and: "Other documents on the same index are lost as well"
         Item.count() == 1
-        Item.search("Spring").total == 0
+        Item.search("Spring").total.value == 0
 
         cleanup:
         Catalog.findAll().each { it.delete() }
@@ -319,9 +313,6 @@ class MappingMigrationSpec extends Specification {
      * case 2: Alias exists
      * case 3: Index exists
      */
-
-    //TODO: Commented in 2.7.1
-    @Ignore
     void "With 'alias' strategy an index and an alias are created when none exist"() {
         given: "That an index does not exist"
         setupMappings()
