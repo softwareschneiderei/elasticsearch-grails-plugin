@@ -24,7 +24,7 @@ class SearchableClassMappingSpec extends Specification implements DataTest, Auto
 
     def "indexing and querying index are calculated based on the index name"() {
         given:
-        PersistentEntity persistentEntity = getDatastore().mappingContext.getPersistentEntity(className)
+        PersistentEntity persistentEntity = datastore.mappingContext.getPersistentEntity(className)
 
         when:
         SearchableClassMapping scm = new SearchableClassMapping(grailsApplication, new DomainEntity(domainReflectionService, persistentEntity), [])
@@ -45,7 +45,7 @@ class SearchableClassMappingSpec extends Specification implements DataTest, Auto
 
     void testGetIndexName() {
         when:
-        PersistentEntity persistentEntity = getDatastore().mappingContext.getPersistentEntity(Photo.class.name)
+        PersistentEntity persistentEntity = datastore.mappingContext.getPersistentEntity(Photo.class.name)
         SearchableClassMapping mapping = new SearchableClassMapping(grailsApplication, new DomainEntity(domainReflectionService, persistentEntity), null)
 
         then:
@@ -65,7 +65,7 @@ class SearchableClassMappingSpec extends Specification implements DataTest, Auto
 
     void testIndexNameIsLowercaseWhenPackageNameIsLowercase() {
         when:
-        PersistentEntity persistentEntity = getDatastore().mappingContext.getPersistentEntity(UpperCase.class.name)
+        PersistentEntity persistentEntity = datastore.mappingContext.getPersistentEntity(UpperCase.class.name)
         SearchableClassMapping mapping = new SearchableClassMapping(grailsApplication, new DomainEntity(domainReflectionService, persistentEntity), null)
         String indexName = mapping.getIndexName()
 
