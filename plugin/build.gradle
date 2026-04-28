@@ -1,0 +1,120 @@
+plugins {
+    id 'config.compile'
+    id 'config.grails-plugin'
+    id 'config.publish'
+    id 'config.testing'
+}
+
+version = projectVersion
+group = "grails.plugins.elasticsearch"
+
+dependencies {
+    profile "org.apache.grails.profiles:web-plugin"
+
+    developmentOnly "org.springframework.boot:spring-boot-devtools" // Spring Boot DevTools may cause performance slowdowns or compatibility issues on larger applications
+
+    implementation "org.elasticsearch:elasticsearch:${elasticsearchVersion}"
+    implementation "org.elasticsearch.client:elasticsearch-rest-client:${elasticsearchVersion}"
+    implementation "org.elasticsearch.client:elasticsearch-rest-high-level-client:${elasticsearchVersion}"
+
+    runtimeOnly "org.hibernate:hibernate-ehcache:5.6.15.Final", {
+        exclude group: 'org.hibernate', module: 'hibernate-core'
+    }
+    runtimeOnly 'org.jboss.spec.javax.transaction:jboss-transaction-api_1.3_spec:2.0.0.Final', {
+        // required for hibernate-ehcache to work with javax variant of hibernate-core excluded
+    }
+    implementation "org.mongodb:mongodb-driver-sync"
+    implementation 'org.locationtech.spatial4j:spatial4j:0.8'
+
+    implementation platform("org.apache.grails:grails-bom:$grailsVersion")
+    implementation "org.apache.grails:grails-core"
+    implementation "org.apache.grails:grails-data-hibernate5"
+    implementation "org.apache.grails:grails-databinding"
+    implementation "org.apache.grails:grails-events"
+    implementation "org.apache.grails:grails-gsp"
+    implementation "org.apache.grails:grails-interceptors"
+    implementation "org.apache.grails:grails-layout"
+    implementation "org.apache.grails:grails-logging"
+    implementation "org.apache.grails:grails-rest-transforms"
+    implementation "org.apache.grails:grails-scaffolding"
+    implementation "org.apache.grails:grails-services"
+    implementation "org.apache.grails:grails-url-mappings"
+    implementation "org.apache.grails:grails-web-boot"
+    implementation "org.springframework.boot:spring-boot-autoconfigure"
+    implementation "org.springframework.boot:spring-boot-starter"
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.springframework.boot:spring-boot-starter-logging"
+    implementation "org.springframework.boot:spring-boot-starter-tomcat"
+    implementation "org.springframework.boot:spring-boot-starter-validation"
+
+
+    runtimeOnly "com.h2database:h2"
+    runtimeOnly "com.zaxxer:HikariCP"
+    runtimeOnly "org.fusesource.jansi:jansi"
+    testImplementation "org.apache.grails:grails-testing-support-datamapping"
+    testImplementation "org.apache.grails:grails-testing-support-web"
+    testImplementation "org.spockframework:spock-core"
+    testAndDevelopmentOnly "org.webjars.npm:bootstrap"
+    testAndDevelopmentOnly "org.webjars.npm:bootstrap-icons"
+    testAndDevelopmentOnly "org.webjars.npm:jquery"
+
+    constraints {
+        add('implementation', 'com.fasterxml.jackson.core:jackson-databind:2.18.3') {
+            because '2.9.10.5 from spatial4j has vulnerabilities'
+        }
+    }
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+    afterTest { desc, result ->
+        logger.quiet " -- Executed test ${desc.name} [${desc.className}] with result: ${result.resultType}"
+    }
+    testLogging {
+        events "passed", "skipped", "failed"//, "standardOut"
+        showExceptions true
+        exceptionFormat "full"
+        showCauses true
+        showStackTraces true
+    }
+}
+
+extensions.configure(org.apache.grails.gradle.publish.GrailsPublishExtension) {
+    it.artifactId = project.name
+    it.githubSlug = 'grails-plugins/grails-elasticsearch'
+    it.license.name = 'Apache-2.0'
+    it.title = 'Elasticsearch Grails Plugin'
+    it.desc = 'An Elasticsearch plugin for Grails. It allows indexing of domain class properties using a concise DSL and searching based on the domain classes using the Elasticsearch query api.'
+    it.organization {
+        it.name = 'Grails Plugins'
+        it.url = 'https://github.com/grails-plugins'
+    }
+    it.developers = [
+            puneetbehl: "Puneet Behl",
+            noamt: "Noam Y. Tenne",
+            mstein: "Manuarii Stein",
+            marcoscarceles: "Marcos Carceles",
+            cgoIT: "cgoIT",
+            tcrossland: "Tom Crossland",
+            miq : "Mihael Koep",
+            donbeave: "Alexey Zhokhov",
+            jamesfredley: "James Fredley",
+            sbglasius: "Søren Berg Glasius",
+            'ruslan-khalitov': "Ruslan Khalitov",
+            spither: "Simon Pither",
+            occurred: "Charlie Schaubmair",
+            jameskleeh: "James Kleeh",
+            kaerfredoc: "Tyler",
+            nmfisher: "Nick Fisher",
+            peh : "Philipp Eschenbach",
+            verglor: "verglor",
+            burtbeckwith: "Burt Beckwith",
+            domix: "Domingo Suarez Torres",
+            magno32: "Justin Smith",
+            sgates: "Steffen Gates",
+            smaldini: "Stephane Maldini",
+            alvarosanchez: "Álvaro Sánchez-Mariscal",
+            'm-r-c': "Mark Chambers",
+            perdacherMartin: "Perdacher Martin",
+    ]
+}

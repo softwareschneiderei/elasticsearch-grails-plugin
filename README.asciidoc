@@ -11,7 +11,7 @@ Edit your project's +build.gradle+ file, by adding the plugin's dependency decla
 ----
 dependencies {
     ...
-    implementation "org.grails.plugins:elasticsearch:3.0.0-RC1"
+    implementation "org.grails.plugins:elasticsearch:5.0.0-RC1"
     ...
 }
 ----
@@ -19,71 +19,37 @@ dependencies {
 
 === Versioning
 
-In order to simply the versioning, with v3.0.0.M1 the Elasticsearch Grails plugin is using Semantic Versioning 2.0.0. To understand what that means, please see the https://semver.org/[specification documentation]
+In order to simply the versioning, with v3.0.0.M1 the Elasticsearch Grails plugin is using Semantic Versioning 2.0.0. To understand what that means, please see the https://semver.org/[specification documentation].
+
+The plugin version is neither tied to the Grails release nor the Elasticsearch client API used. Often it is possible to
+connect to newer Elasticsearch servers if you do not require the new features.
 
 |===
-|Plugin Version | Grails Version | Elasticsearch Version
+|Plugin Version | Grails Version | Elasticsearch Client API Version
 
-|4.0.0
-|5.3.x - 6.x.x
-|7.17.29
-
-|3.0.0
-|4.0.x - 6.x.x
-|7.8.0
-
-|2.7.0
-|3.3.x
-|7.3.0
-
-|2.5.0
-|3.3.x
-|5.5.3
-
-|2.4.2
-|3.3.y
-|5.4.3
-
-|2.4.1
-|3.3.x
-|5.4.3
-
-|2.4.0
-|3.3.y
-|5.4.3
-
-|1.4.1
-|3.1.y
-|5.4.1
-
-|1.2.1
-|3.2.y
-|2.3.z
-
-|1.2.0
-|3.1.y
-|2.3.z
-
-|1.0.0.x
-|3.1.y
-|1.6.z
-
-|0.1.0.x
-|2.y
-|2.1.z
-
-|0.0.4.x
-|2.y
-|1.6.z
+|5.0.0          | 7.x            | 7.17.29
+|4.0.0          | 5.3.x - 6.x.x  | 7.17.29
+|3.0.0          | 4.0.x - 6.x.x  | 7.8.0
+|2.7.0          | 3.3.x          | 7.3.0
+|2.5.0          | 3.3.x          | 5.5.3
+|2.4.2          | 3.3.y          | 5.4.3
+|2.4.1          | 3.3.x          | 5.4.3
+|2.4.0          | 3.3.y          | 5.4.3
+|1.4.1          | 3.1.y          | 5.4.1
+|1.2.1          | 3.2.y          | 2.3.z
+|1.2.0          | 3.1.y          | 2.3.z
+|1.0.0.x        | 3.1.y          | 1.6.z
+|0.1.0.x        | 2.y            | 2.1.z
+|0.0.4.x        | 2.y            | 1.6.z
 |===
 
-=== Example Configuration for Grails 4
+=== Example Configuration for Grails 7
 
 In the following we demonstrate two example configurations using Hibernate or MongoDB as a datastore.
 
 ==== Hibernate
 
-Check out the https://github.com/puneetbehl/elasticsearch-demo-grails4[demo application] using hibernate and grails4.
+Check out the example application in this repository on using Elasticsearch in Grails 7.x with Hibernate.
 
 Add the following to your +grails-app/conf/application.yml+:
 ----

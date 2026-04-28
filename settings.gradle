@@ -1,1 +1,37 @@
-rootProject.name = 'elasticsearch'
+import org.gradle.api.initialization.resolve.RepositoriesMode
+
+pluginManagement {
+    repositories {
+        if (System.getenv('INCLUDE_MAVEN_LOCAL')) {
+            mavenLocal()
+        }
+        maven { url = 'https://repo.grails.org/grails/restricted' }
+    }
+
+    includeBuild('./build-logic') {
+        it.name = 'build-logic'
+    }
+}
+
+include('plugin')
+project(':plugin').name = 'grails-elasticsearch'
+include('docs')
+project(':docs').name = 'grails-elasticsearch-docs'
+
+file('examples').listFiles({ it.directory } as FileFilter).each {
+    include(it.name)
+    project(":$it.name").projectDir = file("examples/$it.name")
+}
+
+rootProject.name = 'grails-elasticsearch-root'
+
+dependencyResolutionManagement {
+    repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
+    repositories {
+        if (System.getenv('INCLUDE_MAVEN_LOCAL')) {
+            mavenLocal()
+        }
+        maven { url = 'https://repo.grails.org/grails/restricted' }
+    }
+}
+
