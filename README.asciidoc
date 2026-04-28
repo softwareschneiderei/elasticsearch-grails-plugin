@@ -43,7 +43,7 @@ connect to newer Elasticsearch servers if you do not require the new features.
 |0.0.4.x        | 2.y            | 1.6.z
 |===
 
-=== Example Configuration for Grails 4
+=== Example Configuration for Grails 7
 
 In the following we demonstrate two example configurations using Hibernate or MongoDB as a datastore.
 

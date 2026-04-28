@@ -1,3 +1,5 @@
+import groovy.json.JsonSlurper
+
 def docProject = provider {
     project(":${project.name - 'root'}docs")
 }
@@ -73,10 +75,10 @@ tasks.register('ghPagesRootIndexPage') {
     doLast {
         List<String> versions = []
         try {
-            def conn = URI.create('https://api.github.com/repos/gpc/grails-export/contents/?ref=gh-pages').toURL().openConnection()
+            def conn = URI.create('https://api.github.com/repos/grails-plugins/grails-elasticsearch/contents/?ref=gh-pages').toURL().openConnection()
             conn.setRequestProperty('Accept', 'application/vnd.github+json')
             conn.setRequestProperty('User-Agent', 'gradle-docs-build')
-            def parsed = new groovy.json.JsonSlurper().parse(conn.inputStream)
+            def parsed = new JsonSlurper().parse(conn.inputStream)
             versions = (parsed as List)
                 .findAll { it.type == 'dir' }
                 .collect { it.name as String }
