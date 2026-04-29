@@ -7,11 +7,24 @@ https://grails.github.io/elasticsearch-grails-plugin/latest/[Documentation about
 Just like any other Grails plugin, through the Grails Plugin center.
 Edit your project's +build.gradle+ file, by adding the plugin's dependency declaration:
 
+==== Grails 7+
+
 +build.gradle+:
 ----
 dependencies {
     ...
-    implementation "org.grails.plugins:elasticsearch:5.0.0-RC1"
+    implementation "org.grails.plugins:grails-elasticsearch:5.0.0"
+    ...
+}
+----
+
+==== Grails 5/6
+
++build.gradle+:
+----
+dependencies {
+    ...
+    implementation "org.grails.plugins:elasticsearch:4.0.0"
     ...
 }
 ----
