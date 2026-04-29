@@ -47,7 +47,7 @@ class ClientNodeFactoryBean implements FactoryBean {
 
         // Configure transport addresses
         if (!elasticSearchContextHolder.config.client.hosts) {
-            builder = RestClient.builder(new HttpHost('localhost', 9300))
+            builder = RestClient.builder(new HttpHost('localhost', 9200))
         } else {
             List<HttpHost> httpHostList = []
             elasticSearchContextHolder.config.client.hosts.each {
