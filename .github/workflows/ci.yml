@@ -121,6 +121,8 @@ jobs:
 
       - name: "📤 Publish Gradle Snapshot Artifacts"
         env:
+          GRAILS_PUBLISH_RELEASE: 'false'
+          MAVEN_PUBLISH_URL: 'https://central.sonatype.com/repository/maven-snapshots/'
           NEXUS_PUBLISH_USERNAME: ${{ secrets.NEXUS_PUBLISH_USERNAME }}
           NEXUS_PUBLISH_PASSWORD: ${{ secrets.NEXUS_PUBLISH_PASSWORD }}
         run: >
