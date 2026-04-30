@@ -102,10 +102,7 @@ environments {
         elasticSearch.client.mode = 'transport'
     }
     test {
-        elasticSearch {
-            client.mode = 'transport'
-            index.store.type = 'simplefs' // store local node in memory and not on disk
-        }
+        elasticSearch.client.mode = 'transport'
     }
     production {
         elasticSearch.client.mode = 'transport'
