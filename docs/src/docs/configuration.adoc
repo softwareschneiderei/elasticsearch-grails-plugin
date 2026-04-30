@@ -80,9 +80,7 @@ environments {
     elasticSearch.client.mode = 'transport'
   }
   test {
-      elasticSearch {
-          client.mode = 'transport'
-      }
+    elasticSearch.client.mode = 'transport'
   }
   production {
     elasticSearch.client.mode = 'transport'
