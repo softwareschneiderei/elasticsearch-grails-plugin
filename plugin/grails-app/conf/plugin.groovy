@@ -7,10 +7,10 @@ elasticSearch {
     /**
      * Hosts for remote ElasticSearch instances.
      * Will only be used with the "transport" client mode.
-     * If the client mode is set to "transport" and no hosts are defined, ["localhost", 9300] will be used by default.
+     * If the client mode is set to "transport" and no hosts are defined, ["localhost", 9200] will be used by default.
      */
     client.hosts = [
-            [host: 'localhost', port: 9300]
+            [host: 'localhost', port: 9200]
     ]
 
     /**
@@ -96,18 +96,15 @@ elasticSearch {
 environments {
     development {
         /**
-         * Possible values : "local", "dataNode", "transport"
+         * Possible values: "transport"
          * If set to null, "transport" mode is used by default.
          */
-        elasticSearch.client.mode = 'local'
+        elasticSearch.client.mode = 'transport'
     }
     test {
-        elasticSearch {
-            client.mode = 'local'
-            index.store.type = 'simplefs' // store local node in memory and not on disk
-        }
+        elasticSearch.client.mode = 'transport'
     }
     production {
-        elasticSearch.client.mode = 'node'
+        elasticSearch.client.mode = 'transport'
     }
 }

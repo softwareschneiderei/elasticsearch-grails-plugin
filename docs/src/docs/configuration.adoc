@@ -1,15 +1,15 @@
 [[configuration]]
 == Configuration
 
-The plugin provide a default configuration, but you may add your own settings in your *Config.groovy* for Grails 2.x and *application.groovy* or *application.yml* for Grails 3.x.
+The plugin provide a default configuration, but you may add your own settings in your *Config.groovy* for Grails 2.x and *application.groovy* or *application.yml* for Grails > 3.x.
 
 === Overriding Spring Boot elasticsearch version
 
-Spring Boot 1.3.x supports Elasticsearch 1.5.2 OOTB (https://github.com/spring-projects/spring-boot/blob/master/spring-boot-dependencies/pom.xml#L76) and will install dependencies for this version, if not explicitly overriden. To do so add the following to your `build.gradle`:
+Spring Boot 3.5.x supports Elasticsearch 8.18.x OOTB and will install dependencies for this version, if not explicitly overriden. To do so add the following to your `build.gradle`:
 
 [source, groovy]
 ----
-def elasticsearchVersion = '5.4.3'
+def elasticsearchVersion = '7.17.29'
 ext['elasticsearch.version'] = elasticsearchVersion
 ----
 
@@ -29,10 +29,10 @@ elasticSearch {
   /**
    * Hosts for remote ElasticSearch instances.
    * Will only be used with the "transport" client mode.
-   * If the client mode is set to "transport" and no hosts are defined, ["localhost", 9300] will be used by default.
+   * If the client mode is set to "transport" and no hosts are defined, ["localhost", 9200] will be used by default. We are using the REST port of ElasticSearch.
    */
   client.hosts = [
-          [host:'localhost', port:9300]
+          [host: 'localhost', port: 9200]
   ]
 
   /**
@@ -75,16 +75,12 @@ elasticSearch {
 environments {
   development {
     /**
-     * Possible values : "local", "dataNode", "transport"
-     *
+     * Possible values: "transport"
      */
-    elasticSearch.client.mode = 'local'
+    elasticSearch.client.mode = 'transport'
   }
   test {
-      elasticSearch {
-          client.mode = 'local'
-          index.store.type = 'memory' // store local node in memory and not on disk
-      }
+    elasticSearch.client.mode = 'transport'
   }
   production {
     elasticSearch.client.mode = 'transport'
@@ -92,7 +88,7 @@ environments {
 }
 ----
 
-==== Grails 3.3.x Sample YAML configuration
+==== Grails 7.x Sample YAML configuration
 
 [source, yaml]
 .application.yml
@@ -101,7 +97,7 @@ elasticSearch:
     date:
         formats: ["yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"]
     client.hosts:
-        - {host: localhost, port: 9300}
+        - {host: localhost, port: 9200}
     defaultExcludedProperties: ['password']
     disableAutoIndex: false
     index:
@@ -114,13 +110,13 @@ environments:
     development:
         elasticSearch:
             client:
-                mode: local
+                mode: transport
                 transport.sniff: true
             bulkIndexOnStartup: true
     test:
         elasticSearch:
             client:
-                mode: local
+                mode: transport
                 transport.sniff: true
             datastoreImpl: hibernateDatastore
             index:
@@ -146,12 +142,12 @@ environments:
 ----
 [INFO]
 ====
-For *Grails 4* and *elasticsearch plugin > 3.0.0* you need to configure the REST port 9200 instead of 9300. 
+For *Grails > 4* and *elasticsearch plugin > 3.0.0* you need to configure the REST port 9200 instead of the obsolete port 9300.
 ====
 
 === Client mode
 
-You can set the plugin in 3 different modes, detailed on the http://www.elasticsearch.org/guide/en/elasticsearch/client/java-api/current/[official ElasticSearch doc].
+Since plugin version 3.x we only support the transport ("REST") mode, detailed on the https://www.elastic.co/guide/en/elasticsearch/client/java-api-client/7.17/index.html[official ElasticSearch documentation].
 The mode is defined with the following config key:
 
 [source, groovy]
@@ -164,38 +160,18 @@ elasticSearch.client.mode = '<mode>'
 .application.yml
 ----
 elasticSearch:
-	client:
-		mode: <mode>
+    client:
+        mode: <mode>
 ----
 
-.Possible values for client node
-[width="100%",cols="2",options="header"]
-|===
-|Value |Description
-
-|node (Removed in version 2.4.1 of the plugin)
-|The plugin create its own node and join the ElasticSearch cluster as a client node (`node.client = true`). This setting requires that you have an ElasticSearch instance running and available on your network (use the discovery feature)
-
-|dataNode
-|The plugin create its own node and join the ElasticSearch cluster as a node that can hold data. This setting requires that you have an ElasticSearch instance running and available on your network (use the discovery feature)
-
-
-|local
-|The plugin create its own local (to the JVM) node. Does not require any running ElasticSearch instance. Useful for development or testing.
-
-|transport
-|The plugin create a transport client that will connect to a remote ElasticSearch instance without joining the cluster.
-|===
-
-
-"Transport" mode needs you to provide the host address and port. You can define one or multiple hosts with the following config key:
+"transport" mode needs you to provide the host address and port. You can define one or multiple hosts with the following config key:
 
 [source,groovy]
 .application.groovy or Config.groovy
 ----
 elasticSearch.client.hosts = [
-       [host:'192.168.0.3', port:9300],
-       [host:'228.168.0.4', port:9300]
+       [host: '192.168.0.3', port: 9200],
+       [host: '228.168.0.4', port: 9200]
 ]
 ----
 
@@ -203,43 +179,13 @@ elasticSearch.client.hosts = [
 .application.yml
 ----
 elasticSearch:
-	client:
-		hosts:
-    	- {host: 192.168.0.3, port: 9300}
-		- {host: 228.168.0.4, port: 9300}
+  client:
+    hosts:
+      - {host: 192.168.0.3, port: 9200}
+      - {host: 228.168.0.4, port: 9200}
 ----
 
-If no host is defined, `localhost:9300` will be used by the transport client.
-
-==== Using node or dataNode during development
-
-[INFO]
-====
-INFO: The node.client setting has been removed. A node with such a setting set will not start up. Instead, each node role needs to be set separately using the existing node.master, node.data and node.ingest supported static settings.
-====
-
-If you configure your dev environment to use `node` or `dataNode` you might see the following exception:
-
-[source, groovy]
-----
-'elasticSearchClient': FactoryBean threw exception on object creation; nested exception is java.lang.IllegalStateException: path.home is not configured
-----
-
-In order to make this work you need to define `es.path.home` in VM options.
-
-[source, groovy]
-.Grails 2.x
-----
-grails run-app -Des.path.home=<PATH_TO_ELASTICSEARCH_HOME_DIR>
-----
-
-[source, groovy]
-.Grails 3.x (build.gradle)
-----
-bootRun {
-    jvmArgs = ['-Des.path.home=<PATH_TO_ELASTICSEARCH_HOME_DIR>']
-}
-----
+If no host is defined, `localhost:9200` will be used by the transport client.
 
 ==== Disable Mapper Attachment plugin
 
@@ -402,8 +348,7 @@ The value should be the name of the datastore bean as it is configured in the Sp
 
 ==== `elasticSearch.bootstrap.config.file`
 
-When using then plugin to construct a local node, the default Elasticsearch configuration is used by default.
-If you use a modified Elasticsearch configuration, you can use this property to specify the location of the file (as an application resource).
+If you use a modified Elasticsearch client configuration, you can use this property to specify the location of the file (as an application resource).
 
 ==== `elasticSearch.bootstrap.transportSettings.file`
 
@@ -468,7 +413,7 @@ From Elasticsearch 5.0 on only selected settings like for instance index.codec c
 ====
 
 ==== `elasticSearch.index.prefix`
-The setting provides possibility to add preffix to all index and aleas names of application. Can be usefull in setup of many applications with one ES instance. Mostly, that is a replacement of elasticSearch.index.name for ES 5.0 +
+The setting provides possibility to add prefix to all index and alias names of application. Can be useful in setup of many applications with one ES instance. Mostly, that is a replacement of elasticSearch.index.name for ES 5.0 +
 
 ==== `elasticSearch.index.compound_format`
 
