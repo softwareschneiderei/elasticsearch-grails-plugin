@@ -17,10 +17,9 @@ def asciidoctorAttributes = [
         idprefix            : '',
         idseparator         : '-',
         version             : project.version,
-        projectUrl          : 'https://github.com/grails-plugins/grails-elasticsearch',
+        projectUrl: "https://github.com/${rootProject.findProperty('githubUser')}/${rootProject.findProperty('githubProject')}",
         sourcedir           : "${rootProject.allprojects.find { it.name == 'grails-elasticsearch' }.projectDir}/src/main/groovy",
         grailsVersion       : grailsVersion
-//        grailsDocBase       : "https://grails.apache.org/docs/${resolveGrailsDocsDirName(project.grailsVersion)}"
 ]
 
 tasks.named('asciidoctor', AsciidoctorTask) {
