@@ -80,15 +80,18 @@ tasks.withType(Test).configureEach {
 }
 
 extensions.configure(org.apache.grails.gradle.publish.GrailsPublishExtension) {
+    def githubUser    = rootProject.findProperty('githubUser')
+    def githubProject = rootProject.findProperty('githubProject')
     it.artifactId = project.name
-    it.githubSlug = 'grails-plugins/grails-elasticsearch'
+    it.githubSlug = "${githubUser}/${githubProject}"
     it.license.name = 'Apache-2.0'
-    it.title = 'Elasticsearch Grails Plugin'
-    it.desc = 'An Elasticsearch plugin for Grails. It allows indexing of domain class properties using a concise DSL and searching based on the domain classes using the Elasticsearch query api.'
+    it.title = "${projectTitle}"
+    it.desc = "${projectDescription}"
     it.organization {
-        it.name = 'Grails Plugins'
-        it.url = 'https://github.com/grails-plugins'
+        it.name = "${projectOrg}"
+        it.url = "https://github.com/${githubUser}"
     }
+
     it.developers = [
             puneetbehl: "Puneet Behl",
             noamt: "Noam Y. Tenne",
