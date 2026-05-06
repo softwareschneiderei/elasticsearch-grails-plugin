@@ -11,7 +11,7 @@ Edit your project's +build.gradle+ file, by adding the plugin's dependency decla
 
 ==== Grails 7+
 
-+build.gradle+:
+build.gradle:
 ----
 dependencies {
     ...
@@ -22,7 +22,7 @@ dependencies {
 
 ==== Grails 5/6
 
-+build.gradle+:
+build.gradle:
 ----
 dependencies {
     ...
@@ -104,16 +104,6 @@ elasticSearch:
     bulkIndexOnStartup: true
     datastoreImpl: mongoDatastore
 ----
-
-== Memory analysis done with YourKit
-
-image:https://www.yourkit.com/images/yklogo.png["YourKit", link="https://www.yourkit.com"]
-
-YourKit supports open source projects with its full-featured Java Profiler.
-YourKit, LLC is the creator of https://www.yourkit.com/java/profiler/[YourKit Java Profiler]
-and https://www.yourkit.com/.net/profiler/[YourKit .NET Profiler],
-innovative and intelligent tools for profiling Java and .NET applications.
-
 
 == License
 
