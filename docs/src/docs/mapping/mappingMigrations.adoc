@@ -14,7 +14,7 @@ The migration strategy is defined by the `elasticSearch.migration.strategy` conf
 - [line-through]#`'delete'` is no longer supported since the upgrade to Elasticsearch > 2.0#
 - `'alias'`
 
-The default strategy is `'alias'` as it is the only strategy that can achieve zero-downtime migrations and thus http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/[recommended by Elasticsearch]
+The default strategy is `'alias'` as it is the only strategy that can achieve zero-downtime migrations and thus https://www.elastic.co/blog/changing-mapping-with-zero-downtime[recommended by Elasticsearch]
 
 These values are described on more detail further ahead
 
@@ -37,7 +37,7 @@ See <<Dealing with deleted content>> below for more details on automatic indexin
 
 ==== Migration Strategy 'alias'
 
-This is the migration strategy http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/[recommended by Elasticsearch].
+This is the migration strategy https://www.elastic.co/blog/changing-mapping-with-zero-downtime[recommended by Elasticsearch].
 
 To better understand this strategy we will describe a typical `'alias'` migration.
 

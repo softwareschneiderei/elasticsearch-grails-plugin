@@ -1,21 +1,20 @@
 == Introduction
 
-The ElasticSearch plugin intends to implement a simple integration with Grails of the Open Source Search Engine http://www.elasticsearch.org/[ElasticSearch],
+The ElasticSearch plugin intends to implement a simple integration with Grails of the Open Source Search Engine https://www.elastic.co/elasticsearch[ElasticSearch],
 which is based on Lucene and provide distributed capabilities.
 
-The plugin focus on exposing Grails domain classes for the moment. It highly takes the existing http://grails.org/plugin/searchable[Searchable Plugin] as
-reference for its syntax and behaviour.
+The plugin focus on exposing Grails domain classes for the moment. It highly takes the long-time obsolete https://mvnrepository.com/artifact/org.grails.plugins/searchable[Searchable Plugin] as reference for its syntax and behaviour.
 
 Note that the plugin is still under development, so you may not be able to use all the features of ElasticSearch yet.
 
-In addition to this document, you may want to read the official ElasticSearch documentation http://www.elasticsearch.org/guide/[here].
+In addition to this document, you may want to read the official ElasticSearch documentation https://www.elastic.co/guide/en/elasticsearch/reference/7.17/elasticsearch-intro.html[here].
 
 include::introduction/features.adoc[]
-
-include::introduction/history.adoc[]
 
 include::introduction/acknowledgements.adoc[]
 
 include::introduction/versioning.adoc[]
 
 include::introduction/license.adoc[]
+
+include::introduction/history.adoc[]

@@ -7,7 +7,7 @@ HTML/XML/Whatever tags.
 You can activate this with a `Closure` containing the highlight settings in the search method `highlight` parameter.
 
 The format of the `Closure` for defining the highlight settings is the same as the
-http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-highlighting.html[ElasticSearch REST API].
+https://www.elastic.co/guide/en/elasticsearch/reference/7.17/highlighting.html[ElasticSearch REST API].
 
 *Example*
 

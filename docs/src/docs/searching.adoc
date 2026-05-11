@@ -65,8 +65,6 @@ println "Found ${res} result(s)"
 
 include::searching/queryStrings.adoc[]
 
-include::searching/queryClosure.adoc[]
-
 include::searching/queryBuilder.adoc[]
 
 include::searching/filterClosure.adoc[]
