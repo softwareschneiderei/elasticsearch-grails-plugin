@@ -117,7 +117,7 @@ This project is a fork based on the great work done by the guys at:
 
 The original Elasticsearch plugin relies on *Hibernate-specific* GORM components, thus rendering it unusable if you back your Grails application by any other database.
 
-==== Here, have a yak:
+### Here, have a yak:
 ```
                             _,,,_
                         .-'`  (  '.
