@@ -3,7 +3,7 @@
 
 Normally this issues happen where different versions of same modules are download from different plugins or dependencies in `build.gradle`
 
-It seems like there are multiple versions of groovy in the classpath. Looks similar to http://stackoverflow.com/questions/31099214/tomcat-conflicting-module-versions-module-groovy-all-is-loaded-in-version-2-3
+It seems like there are multiple versions of groovy in the classpath. Looks similar to https://stackoverflow.com/questions/31099214/tomcat-conflicting-module-versions-module-groovy-all-is-loaded-in-version-2-3
 
 #### Exception
 ----

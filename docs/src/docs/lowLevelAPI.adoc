@@ -27,4 +27,4 @@ class MySearchService {
 
 ----
 
-Please refers to the http://www.elasticsearch.org/guide/reference/java-api/[Elastic Search API] for more information on the methods and properties available on the client.
+Please refers to the https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.17/java-rest-high.html[Elasticsearch High Level REST Client] for more information on the methods and properties available on the client API currently used by the plugin.
