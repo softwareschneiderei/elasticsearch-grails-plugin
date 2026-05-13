@@ -2,7 +2,7 @@
 :sectanchors:
 
 = Elasticsearch Plugin - Reference Documentation
-Puneet Behl
+Grails Plugins Team
 
 :elasticsearch: https://www.elasticsearch.org
 
