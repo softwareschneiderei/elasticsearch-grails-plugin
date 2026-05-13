@@ -12,7 +12,7 @@ Many thanks to all the users who reported issues and sent me pull requests.
 * https://github.com/puneetbehl[Puneet Behl]
 * https://github.com/cgoIT[Carsten Götzinger (cgo IT)]
 * https://github.com/miq[Mihael Koep (Softwareschneiderei GmbH)]
-* https://github.com/sbglasius[Søren Berg Glasius(Gennemtænkt IT A/S)]
+* https://github.com/sbglasius[Søren Berg Glasius (Gennemtænkt IT A/S)]
 * https://github.com/jamesfredley[James Fredley (Triumph Interactive, Inc.)]
 
 #### Authors and Contributors of the original plugin
